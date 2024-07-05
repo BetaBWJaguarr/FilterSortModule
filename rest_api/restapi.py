@@ -53,20 +53,20 @@ def multi_filter():
     try:
         data = request.get_json()
         filters = data.get('filters', [])
-        operation = data.get('operation', None)
-        project_fields = data.get('project_fields', None)
-        facet_fields = data.get('facet_fields', None)
+        sort_data = data.get('sort_data', None)
         limit = data.get('limit', None)
         skip = data.get('skip', None)
         unwind_field = data.get('unwind_field', None)
         group_by = data.get('group_by', None)
+        projection = data.get('projection', None)
+        facet_fields = data.get('facet_fields', None)
 
-        valid_keys = {'db_name', 'collection_name', 'connection_string', 'filters', 'operation', 'project_fields', 'facet_fields', 'limit', 'skip', 'unwind_field', 'group_by'}
+        valid_keys = {'db_name', 'collection_name', 'connection_string', 'filters', 'sort_data', 'limit', 'skip', 'unwind_field', 'group_by', 'projection', 'facet_fields'}
         if not set(data.keys()).issubset(valid_keys):
             invalid_keys = set(data.keys()) - valid_keys
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
 
-        results = multi_filter_request(data, filters, operation, project_fields, facet_fields, limit, skip, unwind_field, group_by)
+        results = multi_filter_request(data, filters, sort_data, limit, skip, unwind_field, group_by, projection, facet_fields)
         return jsonify(results)
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
         return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400

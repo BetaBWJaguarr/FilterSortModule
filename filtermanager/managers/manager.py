@@ -16,18 +16,18 @@ def match_request(data, filter_data, page=None, items_per_page=None, projection=
     except CustomValueError as e:
         return {"error": str(e)}, 400
 
-def sort_request(data, filter_data, sort_data, compare_field=None):
+def sort_request(data, filter_data, sort_data, compare_field=None, page_size=None, page_number=None):
     data_manager = get_data_manager(data)
     try:
-        results = data_manager.sort(filter_data, sort_data, compare_field)
+        results = data_manager.sort(filter_data, sort_data, compare_field, page_size, page_number)
         return results
     except CustomValueError as e:
         return {"error": str(e)}, 400
 
-def multi_filter_request(data, filters, sort_data=None, limit=None, skip=None, unwind_field=None, group_by=None):
+def multi_filter_request(data, filters, sort_data=None, limit=None, skip=None, unwind_field=None, group_by=None, projection=None, facet_fields=None):
     data_manager = get_data_manager(data)
     try:
-        results = data_manager.multi_filter(filters, sort_data, limit, skip, unwind_field, group_by)
+        results = data_manager.multi_filter(filters, sort_data, limit, skip, unwind_field, group_by, projection, facet_fields)
         return results
     except CustomValueError as e:
         return {"error": str(e)}, 400
