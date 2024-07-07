@@ -1,6 +1,7 @@
 from flask import request, jsonify, Blueprint
 from errorhandling.errormanager import CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError
 from filtermanager.managers.manager import match_request, sort_request,multi_filter_request
+from anonymizer.dataanonymizer import  Anonymizer
 
 app = Blueprint('restapi', __name__)
 
@@ -8,25 +9,38 @@ app = Blueprint('restapi', __name__)
 def match():
     try:
         data = request.get_json()
+        connection_string = data.get('connection_string')
+        db_name = data.get('db_name')
+        collection_name = data.get('collection_name')
         filter_data = data.get('match')
-        projection = data.get('projection')
-        sort_data = data.get('sort')
-        text_search = data.get('text_search')
-        regex_search = data.get('regex_search')
 
         page = request.args.get('page', type=int)
         items_per_page = request.args.get('items_per_page', type=int)
-        valid_keys = {'db_name', 'collection_name', 'connection_string', 'match', 'projection', 'sort', 'text_search', 'regex_search'}
+
+        valid_keys = {'connection_string', 'db_name', 'collection_name', 'match'}
         if not set(data.keys()).issubset(valid_keys):
             invalid_keys = set(data.keys()) - valid_keys
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
 
-        results = match_request(data, filter_data, page, items_per_page, projection, sort_data, text_search, regex_search)
+        results = match_request(data, filter_data, page, items_per_page)
+
+        anonymizer = Anonymizer(connection_string, db_name, collection_name)
+        for index, document in enumerate(results):
+            try:
+                anonymized_fields = anonymizer.anonymize_sensitive_fields(document)
+                if anonymized_fields:
+                    results[index] = {**document, **anonymized_fields}
+            except CustomValueError as e:
+                results[index] = {"error": str(e)}
+
         return jsonify(results)
+
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
-        return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
+        return jsonify({"error": str(e), "details": e.details}), 400
+
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
 
 @app.route('/filtermanager/sort', methods=['POST'])
 def sort():
@@ -42,7 +56,18 @@ def sort():
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
 
         results = sort_request(data, filter_data, sort_data, compare_field)
+        anonymizer = Anonymizer(connection_string, db_name, collection_name)
+
+        for index, document in enumerate(results):
+            try:
+                anonymized_fields = anonymizer.anonymize_sensitive_fields(document)
+                if anonymized_fields:
+                    results[index] = {**document, **anonymized_fields}
+            except CustomValueError as e:
+                results[index] = {"error": str(e)}
+
         return jsonify(results)
+
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
         return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
     except Exception as e:
@@ -67,7 +92,18 @@ def multi_filter():
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
 
         results = multi_filter_request(data, filters, sort_data, limit, skip, unwind_field, group_by, projection, facet_fields)
+        anonymizer = Anonymizer(connection_string, db_name, collection_name)
+
+        for index, document in enumerate(results):
+            try:
+                anonymized_fields = anonymizer.anonymize_sensitive_fields(document)
+                if anonymized_fields:
+                    results[index] = {**document, **anonymized_fields}
+            except CustomValueError as e:
+                results[index] = {"error": str(e)}
+
         return jsonify(results)
+
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
         return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
     except Exception as e:

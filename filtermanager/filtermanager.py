@@ -1,9 +1,6 @@
 from pymongo import MongoClient, ASCENDING, DESCENDING
-from bson.objectid import ObjectId
-from collections import OrderedDict
 import json
 from utils.jsonencoder import JSONEncoder
-from datetime import datetime, timedelta
 from filtermanager.managers.cachemanager import CacheManager
 
 
@@ -29,7 +26,6 @@ class DataManager:
         self._get_cache_manager()._set_to_cache(cache_key, data, ttl_seconds)
 
     def match(self, filter_data=None, page=None, items_per_page=None, projection=None, sort_data=None, text_search=None, regex_search=None):
-        self._get_cache_manager().print_cache()
         cache_key = self._generate_cache_key(filter_data, page, items_per_page, projection, sort_data, text_search, regex_search)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
@@ -81,13 +77,12 @@ class DataManager:
         if page_size and page_number:
             results = results.skip(page_size * (page_number - 1)).limit(page_size)
 
-
         encoded_results = json.loads(JSONEncoder().encode(list(results)))
         self._set_to_cache(cache_key, encoded_results)
         return encoded_results
 
-    def multi_filter(self, filters, sort_data=None, limit=None, skip=None, unwind_field=None, group_by=None, projection=None,facet_fields=None):
-        cache_key = self._generate_cache_key(filters, sort_data, limit, skip, unwind_field, group_by, projection,facet_fields)
+    def multi_filter(self, filters, sort_data=None, limit=None, skip=None, unwind_field=None, group_by=None, projection=None, facet_fields=None):
+        cache_key = self._generate_cache_key(filters, sort_data, limit, skip, unwind_field, group_by, projection, facet_fields)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
             return cached_result
@@ -127,8 +122,8 @@ class DataManager:
         self._set_to_cache(cache_key, encoded_results)
         return encoded_results
 
-        def type_search(self, type_value, projection=None, sort_data=None):
-            cache_key = self._generate_cache_key(type_value, projection, sort_data)
+    def type_search(self, type_value, projection=None, sort_data=None):
+        cache_key = self._generate_cache_key(type_value, projection, sort_data)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
             return cached_result
