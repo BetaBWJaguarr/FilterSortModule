@@ -3,18 +3,18 @@ import json
 from utils.jsonencoder import JSONEncoder
 from filtermanager.managers.cachemanager import CacheManager
 
-
-cache_manager = None
-
 class DataManager:
-    def __init__(self, db_name, collection_name, connection_string):
+    def __init__(self, db_name, collection_name, connection_string, default_ttl_seconds=300, expiry_callback=None):
         self.client = MongoClient(connection_string, maxPoolSize=50)
         self.db = self.client[db_name]
         self.collection = self.db[collection_name]
-        self.cache_manager = CacheManager()
+        self.cache_manager = CacheManager(default_ttl_seconds=default_ttl_seconds, expiry_callback=expiry_callback)
 
     def _get_cache_manager(self):
         return self.cache_manager
+
+    def get_cache_statistics(self):
+        return self._get_cache_manager().get_statistics()
 
     def _generate_cache_key(self, *args, **kwargs):
         return self._get_cache_manager()._generate_cache_key(*args, **kwargs)
@@ -29,6 +29,7 @@ class DataManager:
         cache_key = self._generate_cache_key(filter_data, page, items_per_page, projection, sort_data, text_search, regex_search)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
+            print(f"Cache hit for key: {cache_key}")
             return cached_result
 
         query = filter_data if filter_data else {}
@@ -52,20 +53,30 @@ class DataManager:
         results = list(cursor)
         encoded_results = json.loads(JSONEncoder().encode(results))
         self._set_to_cache(cache_key, encoded_results)
+        print(f"Cache set for key: {cache_key}")
+        print(self.get_cache_statistics())
         return encoded_results
 
-    def sort(self, filter_data=None, sort_data=None, compare_field=None, page_size=None, page_number=None):
+    def sort(self, filter_data=None, sort_data=None, compare_field=None, page_size=None, page_number=None, range_field=None):
 
         for field in sort_data.keys():
             self.collection.create_index([(field, ASCENDING if sort_data[field] == 1 else DESCENDING)])
 
-        cache_key = self._generate_cache_key(filter_data, sort_data, compare_field)
+        cache_key = self._generate_cache_key(filter_data, sort_data, compare_field, range_field)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
+            print(f"Cache hit for key: {cache_key}")
             return cached_result
 
         filter_data = filter_data if filter_data else {}
         sort_data = sort_data if sort_data else {}
+
+        if compare_field and isinstance(compare_field, list) and len(compare_field) == 2:
+            filter_data["$expr"] = {"$gt": [f"${compare_field[0]}", f"${compare_field[1]}"]}
+
+        if range_field and isinstance(range_field, dict) and len(range_field) == 2:
+            field_name, range_values = list(range_field.items())[0]
+            filter_data[field_name] = {"$gte": range_values[0], "$lte": range_values[1]}
 
         if compare_field:
             sort_order = sort_data.get(compare_field, 1)
@@ -79,12 +90,15 @@ class DataManager:
 
         encoded_results = json.loads(JSONEncoder().encode(list(results)))
         self._set_to_cache(cache_key, encoded_results)
+        print(f"Cache set for key: {cache_key}")
+        print(self.get_cache_statistics())
         return encoded_results
 
     def multi_filter(self, filters, sort_data=None, limit=None, skip=None, unwind_field=None, group_by=None, projection=None, facet_fields=None):
         cache_key = self._generate_cache_key(filters, sort_data, limit, skip, unwind_field, group_by, projection, facet_fields)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
+            print(f"Cache hit for key: {cache_key}")
             return cached_result
 
         pipeline = []
@@ -120,12 +134,15 @@ class DataManager:
         results = list(self.collection.aggregate(pipeline))
         encoded_results = json.loads(JSONEncoder().encode(results))
         self._set_to_cache(cache_key, encoded_results)
+        print(f"Cache set for key: {cache_key}")
+        print(self.get_cache_statistics())
         return encoded_results
 
     def type_search(self, type_value, projection=None, sort_data=None):
         cache_key = self._generate_cache_key(type_value, projection, sort_data)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
+            print(f"Cache hit for key: {cache_key}")
             return cached_result
 
         query = {"type": type_value}
@@ -140,4 +157,6 @@ class DataManager:
         results = list(cursor)
         encoded_results = json.loads(JSONEncoder().encode(results))
         self._set_to_cache(cache_key, encoded_results)
+        print(f"Cache set for key: {cache_key}")
+        print(self.get_cache_statistics())
         return encoded_results
