@@ -1,13 +1,10 @@
 from flask import request, jsonify, Blueprint
 from pymongo import MongoClient
-import uuid
 import configparser
-from werkzeug.security import generate_password_hash, check_password_hash
-from users.userobjects import User
-from errorhandling.errormanager import CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError
 from filtermanager.managers.manager import match_request, sort_request, multi_filter_request
 from anonymizer.dataanonymizer import Anonymizer
-from functools import wraps
+from errorhandling.errormanager import CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError
+from authentication.auth import login_required
 
 # Load configuration from config.ini
 config = configparser.ConfigParser()
@@ -20,49 +17,8 @@ db_name = config.get('database', 'db_name')
 client = MongoClient(connection_string)
 db = client[db_name]
 users_collection = db['users']
-sessions = {}
 
 app = Blueprint('restapi', __name__)
-
-@app.route('/filtermanager/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
-
-    if not username or not email or not password:
-        return jsonify({"error": "Missing required fields"}), 400
-
-    if users_collection.find_one({"email": email}):
-        return jsonify({"error": "User already exists"}), 400
-
-    user = User(username, email, password)
-    users_collection.insert_one(user.to_dict())
-    return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
-
-@app.route('/filtermanager/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-
-    user_data = users_collection.find_one({"email": email})
-    if user_data and check_password_hash(user_data['password_hash'], password):
-        session_id = str(uuid.uuid4())
-        sessions[session_id] = user_data['_id']
-        return jsonify({"message": "Login successful", "session_id": session_id}), 200
-
-    return jsonify({"error": "Invalid email or password"}), 401
-
-def login_required(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        session_id = request.headers.get('Authorization')
-        if not session_id or session_id not in sessions:
-            return jsonify({"error": "Unauthorized"}), 401
-        return f(*args, **kwargs)
-    return wrapper
 
 @app.route('/filtermanager/match', methods=['POST'])
 @login_required
@@ -167,5 +123,30 @@ def multi_filter():
 
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
         return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
+@app.route('/filtermanager/type_search', methods=['POST'])
+@login_required
+def type_search():
+    try:
+        data = request.get_json()
+        type_value = data.get('type_value')
+        projection = data.get('projection')
+        sort_data = data.get('sort_data')
+        text_search = data.get('text_search')
+        regex_search = data.get('regex_search')
+        date_range = data.get('date_range')
+        greater_than = data.get('greater_than')
+        less_than = data.get('less_than')
+        in_list = data.get('in_list')
+        not_in_list = data.get('not_in_list')
+
+        results = type_search_request(data, type_value, projection, sort_data, text_search, regex_search, date_range, greater_than, less_than, in_list, not_in_list)
+        return jsonify(results)
+
+    except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        return jsonify({"error": str(e), "details": e.details}), 400
+
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500

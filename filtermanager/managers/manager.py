@@ -31,3 +31,19 @@ def multi_filter_request(data, filters, sort_data=None, limit=None, skip=None, u
         return results
     except CustomValueError as e:
         return {"error": str(e)}, 400
+
+def type_search_request(data, type_value, projection=None, sort_data=None, text_search=None, regex_search=None, date_range=None, greater_than=None, less_than=None, in_list=None, not_in_list=None):
+    data_manager = get_data_manager(data)
+    try:
+        results = data_manager.type_search(type_value, projection, sort_data, text_search, regex_search, date_range, greater_than, less_than, in_list, not_in_list)
+        return results
+    except CustomValueError as e:
+        return {"error": str(e)}, 400
+
+def aggregate_request(data, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None):
+    data_manager = get_data_manager(data)
+    try:
+        results = data_manager.aggregate(pipeline, allow_disk_use, max_time_ms, bypass_document_validation, session, collation, hint)
+        return results
+    except CustomValueError as e:
+        return {"error": str(e)}, 400

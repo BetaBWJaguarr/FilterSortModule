@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
 
-import rest_api.restapi
+from authentication.auth import login_required
 from databasebackupmanager.backupmanager import BackupManager
 from errorhandling.errormanager import CustomValueError
 
@@ -9,7 +9,7 @@ api = Blueprint('api', __name__)
 backup_manager = None
 
 @api.route('/filtermanager/backupmanager/backup', methods=['POST'])
-@rest_api.restapi.login_required
+@login_required
 def backup():
     try:
         data = request.get_json()
@@ -38,7 +38,7 @@ def backup():
 
 
 @api.route('/filtermanager/backupmanager/restore', methods=['POST'])
-@rest_api.restapi.login_required
+@login_required
 def restore_by_date():
     try:
         data = request.get_json()
@@ -67,7 +67,7 @@ def restore_by_date():
         return jsonify({"error": str(e)}), 500
 
 @api.route('/filtermanager/backupmanager/delete', methods=['POST'])
-@rest_api.restapi.login_required
+@login_required
 def delete_backup():
     try:
         data = request.get_json()

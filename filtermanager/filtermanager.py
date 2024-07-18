@@ -138,8 +138,8 @@ class DataManager:
         print(self.get_cache_statistics())
         return encoded_results
 
-    def type_search(self, type_value, projection=None, sort_data=None):
-        cache_key = self._generate_cache_key(type_value, projection, sort_data)
+    def type_search(self, type_value, projection=None, sort_data=None, text_search=None, regex_search=None, date_range=None, greater_than=None, less_than=None, in_list=None, not_in_list=None):
+        cache_key = self._generate_cache_key(type_value, projection, sort_data, text_search, regex_search, date_range, greater_than, less_than, in_list, not_in_list)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
             print(f"Cache hit for key: {cache_key}")
@@ -147,8 +147,34 @@ class DataManager:
 
         query = {"type": type_value}
 
+        if text_search:
+            query["$text"] = {"$search": text_search}
 
-        cursor = self.collection.find(query, projection).skip(skip).limit(limit)
+        if regex_search:
+            for field, pattern in regex_search.items():
+                query[field] = {"$regex": pattern, "$options": "i"}
+
+        if date_range:
+            for field, range_values in date_range.items():
+                query[field] = {"$gte": range_values[0], "$lte": range_values[1]}
+
+        if greater_than:
+            for field, value in greater_than.items():
+                query[field] = {"$gt": value}
+
+        if less_than:
+            for field, value in less_than.items():
+                query[field] = {"$lt": value}
+
+        if in_list:
+            for field, values in in_list.items():
+                query[field] = {"$in": values}
+
+        if not_in_list:
+            for field, values in not_in_list.items():
+                query[field] = {"$nin": values}
+
+        cursor = self.collection.find(query, projection)
 
         if sort_data:
             sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
@@ -160,3 +186,30 @@ class DataManager:
         print(f"Cache set for key: {cache_key}")
         print(self.get_cache_statistics())
         return encoded_results
+
+    def aggregate(self, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None):
+        cache_key = self._generate_cache_key(pipeline, allow_disk_use, max_time_ms, bypass_document_validation, session, collation, hint)
+        cached_result = self._get_from_cache(cache_key)
+
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
+        try:
+            aggregation_options = {
+                'allowDiskUse': allow_disk_use,
+                'maxTimeMS': max_time_ms,
+                'bypassDocumentValidation': bypass_document_validation,
+                'session': session,
+                'collation': collation,
+                'hint': hint
+            }
+
+            results = list(self.collection.aggregate(pipeline, **aggregation_options))
+            encoded_results = json.loads(JSONEncoder().encode(results))
+            self._set_to_cache(cache_key, encoded_results)
+            print(f"Cache set for key: {cache_key}")
+            print(self.get_cache_statistics())
+            return encoded_results
+        except Exception as e:
+            raise CustomValueError(f"Aggregation error: {str(e)}")
