@@ -58,10 +58,6 @@ class DataManager:
         return encoded_results
 
     def sort(self, filter_data=None, sort_data=None, compare_field=None, page_size=None, page_number=None, range_field=None):
-
-        for field in sort_data.keys():
-            self.collection.create_index([(field, ASCENDING if sort_data[field] == 1 else DESCENDING)])
-
         cache_key = self._generate_cache_key(filter_data, sort_data, compare_field, range_field)
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
@@ -78,12 +74,8 @@ class DataManager:
             field_name, range_values = list(range_field.items())[0]
             filter_data[field_name] = {"$gte": range_values[0], "$lte": range_values[1]}
 
-        if compare_field:
-            sort_order = sort_data.get(compare_field, 1)
-            results = self.collection.find(filter_data).sort(compare_field, ASCENDING if sort_order == 1 else DESCENDING)
-        else:
-            sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
-            results = self.collection.find(filter_data).sort(sort)
+        sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+        results = self.collection.find(filter_data).sort(sort)
 
         if page_size and page_number:
             results = results.skip(page_size * (page_number - 1)).limit(page_size)
@@ -101,35 +93,25 @@ class DataManager:
             print(f"Cache hit for key: {cache_key}")
             return cached_result
 
-        pipeline = []
-
-        for filter_data in filters:
-            match_stage = {"$match": filter_data}
-            pipeline.append(match_stage)
+        pipeline = [{"$match": filter_data} for filter_data in filters]
 
         if unwind_field:
-            unwind_stage = {"$unwind": f"${unwind_field}"}
-            pipeline.append(unwind_stage)
+            pipeline.append({"$unwind": f"${unwind_field}"})
 
         if group_by:
-            group_stage = {"$group": {"_id": group_by, "count": {"$sum": 1}}}
-            pipeline.append(group_stage)
+            pipeline.append({"$group": {"_id": group_by, "count": {"$sum": 1}}})
 
         if sort_data:
-            sort_stage = {"$sort": {k: ASCENDING if v == 1 else DESCENDING for k, v in sort_data.items()}}
-            pipeline.append(sort_stage)
+            pipeline.append({"$sort": {k: ASCENDING if v == 1 else DESCENDING for k, v in sort_data.items()}})
 
         if skip is not None:
-            skip_stage = {"$skip": skip}
-            pipeline.append(skip_stage)
+            pipeline.append({"$skip": skip})
 
         if limit is not None:
-            limit_stage = {"$limit": limit}
-            pipeline.append(limit_stage)
+            pipeline.append({"$limit": limit})
 
         if facet_fields:
-            facet_stage = {"$facet": OrderedDict(facet_fields)}
-            pipeline.append(facet_stage)
+            pipeline.append({"$facet": OrderedDict(facet_fields)})
 
         results = list(self.collection.aggregate(pipeline))
         encoded_results = json.loads(JSONEncoder().encode(results))
