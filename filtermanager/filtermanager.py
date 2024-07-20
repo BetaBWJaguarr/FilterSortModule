@@ -169,8 +169,8 @@ class DataManager:
         print(self.get_cache_statistics())
         return encoded_results
 
-    def aggregate(self, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None):
-        cache_key = self._generate_cache_key(pipeline, allow_disk_use, max_time_ms, bypass_document_validation, session, collation, hint)
+    def aggregate(self, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None, batch_size=None, comment=None, cursor=None):
+        cache_key = self._generate_cache_key(pipeline, allow_disk_use, max_time_ms, bypass_document_validation, session, collation, hint, batch_size, comment, cursor)
         cached_result = self._get_from_cache(cache_key)
 
         if cached_result:
@@ -184,8 +184,13 @@ class DataManager:
                 'bypassDocumentValidation': bypass_document_validation,
                 'session': session,
                 'collation': collation,
-                'hint': hint
+                'hint': hint,
+                'batchSize': batch_size,
+                'comment': comment
             }
+
+            if cursor is not None:
+                aggregation_options['cursor'] = cursor
 
             results = list(self.collection.aggregate(pipeline, **aggregation_options))
             encoded_results = json.loads(JSONEncoder().encode(results))
@@ -195,3 +200,37 @@ class DataManager:
             return encoded_results
         except Exception as e:
             raise CustomValueError(f"Aggregation error: {str(e)}")
+
+    def searching_boolean(self, filter_data=None, and_conditions=None, or_conditions=None, not_conditions=None, projection=None, sort_data=None, page=None, items_per_page=None):
+        cache_key = self._generate_cache_key(filter_data, and_conditions, or_conditions, not_conditions, projection, sort_data, page, items_per_page)
+        cached_result = self._get_from_cache(cache_key)
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
+        query = filter_data if filter_data else {}
+
+        if and_conditions:
+            query.update(and_conditions)
+
+        if or_conditions:
+            query["$or"] = or_conditions
+
+        if not_conditions:
+            query.update({"$nor": [not_conditions]})
+
+        skip = (page - 1) * items_per_page if page and items_per_page else 0
+        limit = items_per_page if items_per_page else 0
+
+        cursor = self.collection.find(query, projection).skip(skip).limit(limit)
+
+        if sort_data:
+            sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+            cursor = cursor.sort(sort)
+
+        results = list(cursor)
+        encoded_results = json.loads(JSONEncoder().encode(results))
+        self._set_to_cache(cache_key, encoded_results)
+        print(f"Cache set for key: {cache_key}")
+        print(self.get_cache_statistics())
+        return encoded_results

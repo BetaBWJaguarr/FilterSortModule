@@ -40,10 +40,38 @@ def type_search_request(data, type_value, projection=None, sort_data=None, text_
     except CustomValueError as e:
         return {"error": str(e)}, 400
 
-def aggregate_request(data, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None):
+def aggregate_request(data, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None, batch_size=None, comment=None, cursor=None):
     data_manager = get_data_manager(data)
     try:
-        results = data_manager.aggregate(pipeline, allow_disk_use, max_time_ms, bypass_document_validation, session, collation, hint)
+        results = data_manager.aggregate(
+            pipeline,
+            allow_disk_use=allow_disk_use,
+            max_time_ms=max_time_ms,
+            bypass_document_validation=bypass_document_validation,
+            session=session,
+            collation=collation,
+            hint=hint,
+            batch_size=batch_size,
+            comment=comment,
+            cursor=cursor
+        )
+        return results
+    except CustomValueError as e:
+        return {"error": str(e)}, 400
+
+def searching_boolean_request(data, filter_data=None, and_conditions=None, or_conditions=None, not_conditions=None, projection=None, sort_data=None, page=None, items_per_page=None):
+    data_manager = get_data_manager(data)
+    try:
+        results = data_manager.searching_boolean(
+            filter_data,
+            and_conditions,
+            or_conditions,
+            not_conditions,
+            projection,
+            sort_data,
+            page,
+            items_per_page
+        )
         return results
     except CustomValueError as e:
         return {"error": str(e)}, 400
