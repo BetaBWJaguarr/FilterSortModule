@@ -169,8 +169,17 @@ class DataManager:
         print(self.get_cache_statistics())
         return encoded_results
 
-    def aggregate(self, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None, batch_size=None, comment=None, cursor=None):
-        cache_key = self._generate_cache_key(pipeline, allow_disk_use, max_time_ms, bypass_document_validation, session, collation, hint, batch_size, comment, cursor)
+    def aggregate(
+            self, pipeline, allow_disk_use=False, max_time_ms=None,
+            bypass_document_validation=False, session=None,
+            collation=None, hint=None, batch_size=None,
+            comment=None, cursor=None,max_results=None
+    ):
+        cache_key = self._generate_cache_key(
+        pipeline, allow_disk_use, max_time_ms,
+            bypass_document_validation, session, collation,
+            hint, batch_size, comment, cursor
+        )
         cached_result = self._get_from_cache(cache_key)
 
         if cached_result:
@@ -193,11 +202,18 @@ class DataManager:
                 aggregation_options['cursor'] = cursor
 
             results = list(self.collection.aggregate(pipeline, **aggregation_options))
+
+            if max_results is not None:
+                results = results[:max_results]
+
             encoded_results = json.loads(JSONEncoder().encode(results))
+
             self._set_to_cache(cache_key, encoded_results)
             print(f"Cache set for key: {cache_key}")
             print(self.get_cache_statistics())
+
             return encoded_results
+
         except Exception as e:
             raise CustomValueError(f"Aggregation error: {str(e)}")
 

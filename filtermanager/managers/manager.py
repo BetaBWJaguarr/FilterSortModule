@@ -40,7 +40,7 @@ def type_search_request(data, type_value, projection=None, sort_data=None, text_
     except CustomValueError as e:
         return {"error": str(e)}, 400
 
-def aggregate_request(data, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None, batch_size=None, comment=None, cursor=None):
+def aggregate_request(data, pipeline, allow_disk_use=False, max_time_ms=None, bypass_document_validation=False, session=None, collation=None, hint=None, batch_size=None, comment=None, cursor=None,max_results=None):
     data_manager = get_data_manager(data)
     try:
         results = data_manager.aggregate(
@@ -53,7 +53,8 @@ def aggregate_request(data, pipeline, allow_disk_use=False, max_time_ms=None, by
             hint=hint,
             batch_size=batch_size,
             comment=comment,
-            cursor=cursor
+            cursor=cursor,
+            max_results=max_results
         )
         return results
     except CustomValueError as e:
