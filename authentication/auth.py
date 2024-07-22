@@ -20,10 +20,14 @@ except errors.PyMongoError as e:
     raise SystemExit("Database connection failed. Please check your configuration.")
 
 sessions = {}
+failed_login_attempts = {}
+lockout_time = timedelta(minutes=15)
 
 auth = Blueprint('auth', __name__)
 
 SESSION_TIMEOUT = timedelta(hours=92)
+LOGIN_ATTEMPT_LIMIT = 5
+LOGIN_ATTEMPT_WINDOW = timedelta(minutes=10)
 
 def hash_password(password):
     salt = uuid.uuid4().bytes
@@ -71,12 +75,34 @@ def register():
 def login():
     try:
         data = request.get_json()
-        user_data = users_collection.find_one({"email": data.get('email')})
+        email = data.get('email')
+        password = data.get('password')
 
-        if user_data and check_password_hash(user_data['password'], data.get('password')):
-            session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
-            sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
-            return jsonify({"message": "Login successful", "session_id": session_id}), 200
+        if email in failed_login_attempts:
+            failed_attempt = failed_login_attempts[email]
+            if failed_attempt['count'] >= LOGIN_ATTEMPT_LIMIT and datetime.utcnow() - failed_attempt['last_failed_attempt'] < LOGIN_ATTEMPT_WINDOW:
+                return jsonify({"error": "Account locked. Please try again later."}), 403
+
+        user_data = users_collection.find_one({"email": email})
+
+        if user_data:
+            if check_password_hash(user_data['password'], password):
+                session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
+                sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
+                if email in failed_login_attempts:
+                    del failed_login_attempts[email]
+                return jsonify({"message": "Login successful", "session_id": session_id}), 200
+
+
+        if email in failed_login_attempts:
+            failed_login_attempts[email]['count'] += 1
+        else:
+            failed_login_attempts[email] = {'count': 1, 'last_failed_attempt': datetime.utcnow()}
+
+        failed_login_attempts[email]['last_failed_attempt'] = datetime.utcnow()
+
+        if failed_login_attempts[email]['count'] >= LOGIN_ATTEMPT_LIMIT:
+            return jsonify({"error": "Account locked. Please try again later."}), 403
 
         return jsonify({"error": "Invalid email or password"}), 401
     except errors.PyMongoError as e:
@@ -120,7 +146,7 @@ def update_info():
         if 'email' in data:
             updated_data['email'] = data['email']
         if 'password' in data:
-            salt, updated_data['password_hash'] = hash_password(data['password'])
+            salt, updated_data['password'] = hash_password(data['password'])
 
         users_collection.update_one({"_id": user_id}, {"$set": updated_data})
         return jsonify({"message": "User info updated successfully"}), 200
