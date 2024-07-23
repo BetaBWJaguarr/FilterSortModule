@@ -4,6 +4,10 @@ import uuid
 import configparser
 import scrypt
 from werkzeug.security import check_password_hash, generate_password_hash
+
+from app import limiter
+from authentication.emailmanager.emailmanager import send_email
+from authentication.tokenmanager.tokenmanager import verify_token, generate_token
 from users.userobjects import User
 from functools import wraps
 from datetime import datetime, timedelta
@@ -52,6 +56,7 @@ def login_required(f):
     return wrapper
 
 @auth.route('/filtermanager/auth/register', methods=['POST'])
+@limiter.limit("5 per minute")
 def register():
     try:
         data = request.get_json()
@@ -67,11 +72,17 @@ def register():
 
         user = User(username, email, password)
         users_collection.insert_one(user.to_dict())
+
+        token = generate_token({'user_id': user.id}, expiration_minutes=60)
+        verification_link = f"http://yourdomain.com/verify/{token}"
+        send_email("Verify your email", email, f"Click here to verify your email: {verification_link}")
+
         return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/login', methods=['POST'])
+@limiter.limit("5 per minute")
 def login():
     try:
         data = request.get_json()
@@ -109,6 +120,7 @@ def login():
         return jsonify({"error": "Database error. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/logout', methods=['POST'])
+@limiter.limit("5 per minute")
 @login_required
 def logout():
     try:
@@ -119,6 +131,7 @@ def logout():
         return jsonify({"error": "Database error. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/reset_password', methods=['POST'])
+@limiter.limit("5 per minute")
 def reset_password():
     try:
         data = request.get_json()
@@ -133,6 +146,7 @@ def reset_password():
         return jsonify({"error": "Database error. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/update_info', methods=['PUT'])
+@limiter.limit("5 per minute")
 @login_required
 def update_info():
     try:
@@ -154,6 +168,7 @@ def update_info():
         return jsonify({"error": "Database error. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/delete_account', methods=['DELETE'])
+@limiter.limit("5 per minute")
 @login_required
 def delete_account():
     try:
@@ -165,3 +180,15 @@ def delete_account():
         return jsonify({"message": "User account deleted successfully"}), 200
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
+
+#Backend Auth Manager
+@auth.route('/filtermanager/auth/verify/<token>', methods=['GET'])
+def verify_email(token):
+    data = verify_token(token)
+    if data:
+        user_id = data.get('user_id')
+        if users_collection.find_one({"_id": user_id}):
+            # Update user verification status here
+            return jsonify({"message": "Email verified successfully"}), 200
+        return jsonify({"error": "Invalid user"}), 400
+    return jsonify({"error": "Invalid or expired token"}), 400

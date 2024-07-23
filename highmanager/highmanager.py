@@ -35,49 +35,34 @@ class HighManager:
 
 
         if "$or" in query:
-            original_or_conditions = query["$or"]
-            simplified_conditions = []
-            seen_conditions = set()
-            for condition in original_or_conditions:
-                condition_tuple = tuple(condition.items())
-                if condition_tuple not in seen_conditions:
-                    seen_conditions.add(condition_tuple)
-                    simplified_conditions.append(condition)
-            if len(simplified_conditions) < len(original_or_conditions):
-                query["$or"] = simplified_conditions
+            query["$or"] = [dict(t) for t in {tuple(d.items()) for d in query["$or"]}]
 
 
-        if "$and" in query:
-            query["$and"] = self._optimize_conditions(query["$and"])
-        if "$or" in query:
-            query["$or"] = self._optimize_conditions(query["$or"])
-        if "$nor" in query:
-            query["$nor"] = self._optimize_conditions(query["$nor"])
-        if "$not" in query:
-            query["$not"] = self._optimize_conditions(query["$not"])
+        for op in ["$and", "$or", "$nor", "$not"]:
+            if op in query:
+                query[op] = [dict(t) for t in {tuple(d.items()) for d in query[op]}]
 
 
         for key, value in query.items():
             if isinstance(value, dict):
-                if "$in" in value:
-                    query[key]["$in"] = list(set(value["$in"]))
-                if "$lte" in value:
-                    query[key]["$lte"] = value["$lte"]
-                if "$nin" in value:
-                    query[key]["$nin"] = list(set(value["$nin"]))
+                for op in ["$in", "$nin"]:
+                    if op in value:
+                        value[op] = list(set(value[op]))
 
-
-        hint = None
-        if sort_data:
-            sort_keys = list(sort_data.keys())
-            index_information = self.collection.index_information()
-            for index in index_information.values():
-                if set(sort_keys).issubset(index['key']):
-                    hint = index['key']
-                    break
 
         if projection:
             projection = {field: 1 for field in projection}
+
+
+        sort = None
+        hint = None
+        if sort_data:
+            sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+            index_information = self.collection.index_information()
+            for index in index_information.values():
+                if set(sort_data.keys()).issubset([field for field, _ in index['key']]):
+                    hint = index['key']
+                    break
 
 
         skip = (page - 1) * items_per_page if page and items_per_page else 0
@@ -85,11 +70,11 @@ class HighManager:
 
 
         self.db.command('profile', 2)
+
+
         cursor = self.collection.find(query, projection).skip(skip).limit(limit)
 
-
-        if sort_data:
-            sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+        if sort:
             cursor = cursor.sort(sort)
 
         if hint:
@@ -112,23 +97,16 @@ class HighManager:
         print(f"Cache set for key: {cache_key}")
 
 
-        self.db.command('profile', 0)
         profile_data = list(self.db.system.profile.find().sort([('$natural', -1)]).limit(10))
         print(f"Query profiling data: {profile_data}")
 
+
+        self.db.command('profile', 0)
+
         return encoded_results
 
-    def _optimize_conditions(self, conditions):
-        optimized_conditions = []
-        seen_conditions = set()
-        for condition in conditions:
-            condition_tuple = tuple(condition.items())
-            if condition_tuple not in seen_conditions:
-                seen_conditions.add(condition_tuple)
-                optimized_conditions.append(condition)
-        return optimized_conditions
 
-    def build_complex_query(self,cond):
+    def build_complex_query(self, cond):
         if not isinstance(cond, (dict, list)):
             raise ValueError("Conditions must be either a dictionary or a list.")
 
@@ -146,6 +124,8 @@ class HighManager:
                 elif key == '$not':
                     query[key] = self.build_complex_query(value)
                 elif key == '$elemMatch':
+                    if not isinstance(value, dict):
+                        raise ValueError("$elemMatch requires a dictionary value.")
                     query[key] = self.build_complex_query(value)
                 elif key == '$exists':
                     if not isinstance(value, bool):
@@ -179,6 +159,30 @@ class HighManager:
                     if not isinstance(value, (int, float)):
                         raise ValueError("$lte operator requires a numeric value.")
                     query[key] = value
+
+
+                elif key == '$regex':
+                    if not isinstance(value, str):
+                        raise ValueError("$regex operator requires a string value.")
+                    query[key] = value
+
+                elif key == '$size':
+                    if not isinstance(value, int):
+                        raise ValueError("$size operator requires an integer value.")
+                    query[key] = value
+
+                elif key == '$all':
+                    if not isinstance(value, list):
+                        raise ValueError("$all operator requires a list of values.")
+                    query[key] = value
+
+                elif key == '$mod':
+                    if not isinstance(value, list) or len(value) != 2:
+                        raise ValueError("$mod operator requires a list of two numeric values.")
+                    if not all(isinstance(i, (int, float)) for i in value):
+                        raise ValueError("$mod operator requires numeric values.")
+                    query[key] = value
+
                 elif isinstance(value, dict):
                     query[key] = self.build_complex_query(value)
                 elif isinstance(value, list):

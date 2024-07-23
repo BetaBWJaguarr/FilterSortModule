@@ -8,6 +8,14 @@ def get_data_manager(data):
 
     return DataManager(db_name, collection_name, connection_string)
 
+def get_high_manager(data):
+    from highmanager.highmanager import HighManager
+    db_name = data.get('db_name')
+    collection_name = data.get('collection_name')
+    connection_string = data.get('connection_string')
+
+    return HighManager(db_name, collection_name, connection_string)
+
 def match_request(data, filter_data, page=None, items_per_page=None, projection=None, sort_data=None, text_search=None, regex_search=None):
     data_manager = get_data_manager(data)
     try:
@@ -73,6 +81,14 @@ def searching_boolean_request(data, filter_data=None, and_conditions=None, or_co
             page,
             items_per_page
         )
+        return results
+    except CustomValueError as e:
+        return {"error": str(e)}, 400
+
+def high_level_query_request(data, filter_data=None, projection=None, sort_data=None, page=None, items_per_page=None):
+    high_manager = get_high_manager(data)
+    try:
+        results = high_manager.high_level_query_optimization(filter_data, projection, sort_data, page, items_per_page)
         return results
     except CustomValueError as e:
         return {"error": str(e)}, 400

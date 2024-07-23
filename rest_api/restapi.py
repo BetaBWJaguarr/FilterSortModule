@@ -1,9 +1,10 @@
 from flask import request, jsonify, Blueprint
 from pymongo import MongoClient
 import configparser
-from filtermanager.managers.manager import match_request, sort_request, multi_filter_request, aggregate_request, type_search_request
+from filtermanager.managers.manager import match_request, sort_request, multi_filter_request, aggregate_request, type_search_request, high_level_query_request
 from anonymizer.dataanonymizer import Anonymizer
 from errorhandling.errormanager import CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError
+from errorhandling.errormanager import setup_logging
 from authentication.auth import login_required
 
 # Load configuration from config.ini
@@ -20,6 +21,9 @@ users_collection = db['users']
 
 app = Blueprint('restapi', __name__)
 
+# Initialize logging
+logger = setup_logging()
+
 def anonymize_results(results, anonymizer):
     for index, document in enumerate(results):
         try:
@@ -28,10 +32,12 @@ def anonymize_results(results, anonymizer):
                 results[index] = {**document, **anonymized_fields}
         except CustomValueError as e:
             results[index] = {"error": str(e)}
+            logger.error(f"Error anonymizing result at index {index}: {str(e)}", exc_info=True)
     return results
 
 @app.route('/filtermanager/match', methods=['POST'])
 @login_required
+@limiter.limit("5 per minute")
 def match():
     try:
         data = request.get_json()
@@ -56,13 +62,16 @@ def match():
         return jsonify(results)
 
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": str(e), "details": e.details}), 400
 
     except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
 @app.route('/filtermanager/sort', methods=['POST'])
 @login_required
+@limiter.limit("5 per minute")
 def sort():
     try:
         data = request.get_json()
@@ -83,12 +92,15 @@ def sort():
         return jsonify(results)
 
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
     except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
 @app.route('/filtermanager/multi_filter', methods=['POST'])
 @login_required
+@limiter.limit("5 per minute")
 def multi_filter():
     try:
         data = request.get_json()
@@ -114,12 +126,15 @@ def multi_filter():
         return jsonify(results)
 
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
     except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
 @app.route('/filtermanager/type_search', methods=['POST'])
 @login_required
+@limiter.limit("5 per minute")
 def type_search():
     try:
         data = request.get_json()
@@ -142,13 +157,15 @@ def type_search():
         return jsonify(results)
 
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
-        return jsonify({"error": str(e), "details": e.details}), 400
-
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
     except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
 
 @app.route('/filtermanager/aggregate', methods=['POST'])
 @login_required
+@limiter.limit("5 per minute")
 def aggregate():
     try:
         data = request.get_json()
@@ -190,7 +207,47 @@ def aggregate():
         return jsonify(results)
 
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
-        return jsonify({"error": str(e), "details": e.details}), 400
-
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
     except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
+@app.route('/filtermanager/highquery', methods=['POST'])
+@login_required
+@limiter.limit("5 per minute")
+def high_level_query():
+    try:
+        request_data = request.get_json()
+
+        filter_data = request_data.get('filter_data')
+        projection = request_data.get('projection')
+        sort_data = request_data.get('sort_data')
+        page = request_data.get('page')
+        items_per_page = request_data.get('items_per_page')
+
+        valid_keys = {'filter_data', 'projection', 'sort_data', 'page', 'items_per_page'}
+        if not set(request_data.keys()).issubset(valid_keys):
+            invalid_keys = set(request_data.keys()) - valid_keys
+            raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
+
+        results = high_level_query_request(
+            data=request_data,
+            filter_data=filter_data,
+            projection=projection,
+            sort_data=sort_data,
+            page=page,
+            items_per_page=items_per_page
+        )
+
+        anonymizer = Anonymizer(connection_string, db_name, data.get('collection_name'))
+        results = anonymize_results(results, anonymizer)
+
+        return jsonify(results)
+
+    except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
+    except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
