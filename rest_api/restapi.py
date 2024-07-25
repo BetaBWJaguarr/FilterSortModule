@@ -5,7 +5,7 @@ from filtermanager.managers.manager import match_request, sort_request, multi_fi
 from anonymizer.dataanonymizer import Anonymizer
 from errorhandling.errormanager import CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError
 from errorhandling.errormanager import setup_logging
-from authentication.auth import login_required
+from authentication.auth import login_required,limiter
 
 # Load configuration from config.ini
 config = configparser.ConfigParser()

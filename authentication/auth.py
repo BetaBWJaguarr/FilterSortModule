@@ -1,11 +1,11 @@
+import random
+import string
 from flask import request, jsonify, Blueprint
+from flask_limiter import Limiter
 from pymongo import MongoClient, errors
 import uuid
 import configparser
-import scrypt
 from werkzeug.security import check_password_hash, generate_password_hash
-
-from app import limiter
 from authentication.emailmanager.emailmanager import send_email
 from authentication.tokenmanager.tokenmanager import verify_token, generate_token
 from users.userobjects import User
@@ -33,9 +33,8 @@ SESSION_TIMEOUT = timedelta(hours=92)
 LOGIN_ATTEMPT_LIMIT = 5
 LOGIN_ATTEMPT_WINDOW = timedelta(minutes=10)
 
-def hash_password(password):
-    salt = uuid.uuid4().bytes
-    return salt, scrypt.hash(password, salt)
+limiter = Limiter(key_func=lambda: request.remote_addr)
+
 
 def login_required(f):
     @wraps(f)
@@ -74,7 +73,7 @@ def register():
         users_collection.insert_one(user.to_dict())
 
         token = generate_token({'user_id': user.id}, expiration_minutes=60)
-        verification_link = f"http://yourdomain.com/verify/{token}"
+        verification_link = f"http://127.0.0.1:5000/filtermanager/auth/verify/{token}"
         send_email("Verify your email", email, f"Click here to verify your email: {verification_link}")
 
         return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
@@ -82,7 +81,6 @@ def register():
         return jsonify({"error": "Database error. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/login', methods=['POST'])
-@limiter.limit("5 per minute")
 def login():
     try:
         data = request.get_json()
@@ -97,6 +95,9 @@ def login():
         user_data = users_collection.find_one({"email": email})
 
         if user_data:
+            if not user_data.get('is_verified'):
+                return jsonify({"error": "Email not verified. Please verify your email before logging in."}), 401
+
             if check_password_hash(user_data['password'], password):
                 session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
                 sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
@@ -135,13 +136,17 @@ def logout():
 def reset_password():
     try:
         data = request.get_json()
-        user_data = users_collection.find_one({"email": data.get('email')})
+        email = data.get('email')
 
-        if user_data and check_password_hash(user_data['password_hash'], data.get('old_password')):
-            users_collection.update_one({"email": data.get('email')}, {"$set": {"password_hash": generate_password_hash(data.get('new_password'))}})
-            return jsonify({"message": "Password reset successful"}), 200
+        user_data = users_collection.find_one({"email": email})
 
-        return jsonify({"error": "Invalid email or password"}), 401
+        if user_data:
+            token = generate_token({'email': email}, expiration_minutes=15)
+            reset_link = f"http://127.0.0.1:5000/filtermanager/auth/update_password/{token}"
+            send_email("Reset your password", email, f"Click here to reset your password: {reset_link}")
+            return jsonify({"message": "Password reset email sent"}), 200
+
+        return jsonify({"error": "Email not found"}), 404
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
 
@@ -160,7 +165,7 @@ def update_info():
         if 'email' in data:
             updated_data['email'] = data['email']
         if 'password' in data:
-            salt, updated_data['password'] = hash_password(data['password'])
+            updated_data['password'] = generate_password_hash(data['password'])
 
         users_collection.update_one({"_id": user_id}, {"$set": updated_data})
         return jsonify({"message": "User info updated successfully"}), 200
@@ -187,8 +192,40 @@ def verify_email(token):
     data = verify_token(token)
     if data:
         user_id = data.get('user_id')
-        if users_collection.find_one({"_id": user_id}):
-            # Update user verification status here
+        user = users_collection.find_one({"_id": user_id})
+
+        if user:
+            if user.get('is_verified'):
+                return jsonify({"message": "User is already verified"}), 200
+
+            users_collection.update_one({"_id": user_id}, {"$set": {"is_verified": True}})
+
             return jsonify({"message": "Email verified successfully"}), 200
+
         return jsonify({"error": "Invalid user"}), 400
+
+    return jsonify({"error": "Invalid or expired token"}), 400
+
+def generate_default_password():
+    length = 12
+    chars = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(chars) for _ in range(length))
+
+@auth.route('/filtermanager/auth/update_password/<token>', methods=['GET'])
+def update_password(token):
+    data = verify_token(token)
+    if data:
+        email = data.get('email')
+
+        default_password = generate_default_password()
+        hashed_password = generate_password_hash(default_password)
+
+        if email:
+            users_collection.update_one({"email": email}, {"$set": {"password": hashed_password}})
+            return jsonify({
+                "message": "Password reseted successfully",
+                "default_password": default_password
+            }), 200
+
+        return jsonify({"error": "Missing email"}), 400
     return jsonify({"error": "Invalid or expired token"}), 400

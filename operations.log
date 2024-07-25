@@ -1,6 +1,16 @@
-2024-07-23 09:29:41,909 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2024-07-25 10:33:13,138 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on http://127.0.0.1:5000
-2024-07-23 09:29:41,909 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+2024-07-25 10:33:13,138 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on http://127.0.0.1:5000
-2024-07-23 09:29:41,910 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
-2024-07-23 09:29:41,910 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 10:33:13,138 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 10:33:13,138 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 10:34:44,240 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 10:34:44,240 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 10:34:44,243 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 10:34:44,243 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 10:34:53,748 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 10:34:53] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-25 10:34:53,748 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 10:34:53] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-25 10:35:09,336 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 10:35:09] "POST /filtermanager/backupmanager/backup HTTP/1.1" 200 -
+2024-07-25 10:35:09,336 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 10:35:09] "POST /filtermanager/backupmanager/backup HTTP/1.1" 200 -

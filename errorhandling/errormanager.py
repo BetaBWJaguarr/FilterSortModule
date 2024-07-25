@@ -1,6 +1,9 @@
 import logging
+import sys
 import time
 import traceback
+from datetime import datetime
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 
 
 # Custom Formatter for Detailed Logging
@@ -9,17 +12,51 @@ class CustomFormatter(logging.Formatter):
         result = super().formatException(exc_info)
         return f"{result}\n{'-'*60}"
 
-
 # Configure Logging
-def setup_logging(log_file="operations.log", level=logging.ERROR):
+def setup_logging(
+        log_file="operations.log",
+        level="ERROR",
+        console_output=False,
+        max_bytes=10**6,  # 1 MB
+        backup_count=5,
+        rotation_type="size",
+        log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        log_format_exception="%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(exc_info)s"
+):
     logger = logging.getLogger()
-    handler = logging.FileHandler(log_file)
-    formatter = CustomFormatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+
+
+    level = level.upper()
+    if hasattr(logging, level):
+        logger.setLevel(getattr(logging, level))
+    else:
+        raise ValueError("Invalid log level. Use 'DEBUG', 'INFO', 'WARNING', 'ERROR', or 'CRITICAL'.")
+
+    formatter = CustomFormatter(log_format)
+    formatter_exception = CustomFormatter(log_format_exception)
+
+    if rotation_type == "time":
+        log_file = f"operations_{datetime.now().strftime('%Y%m%d')}.log"
+
+    if rotation_type == "size":
+        handler = RotatingFileHandler(
+            log_file, maxBytes=max_bytes, backupCount=backup_count
+        )
+    elif rotation_type == "time":
+        handler = TimedRotatingFileHandler(
+            log_file, when="midnight", interval=1, backupCount=backup_count
+        )
+    else:
+        raise ValueError("Invalid rotation_type. Use 'size' or 'time'.")
+
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logger.setLevel(level)
+
+    if console_output:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
     return logger
 
 

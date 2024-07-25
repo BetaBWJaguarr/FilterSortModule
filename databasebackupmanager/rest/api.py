@@ -1,7 +1,6 @@
 from flask import request, jsonify, Blueprint
 
-from app import limiter
-from authentication.auth import login_required
+from authentication.auth import login_required, limiter
 from databasebackupmanager.backupmanager import BackupManager
 from errorhandling.errormanager import CustomValueError, setup_logging
 
