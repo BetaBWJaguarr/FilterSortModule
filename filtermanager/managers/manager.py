@@ -68,18 +68,42 @@ def aggregate_request(data, pipeline, allow_disk_use=False, max_time_ms=None, by
     except CustomValueError as e:
         return {"error": str(e)}, 400
 
-def searching_boolean_request(data, filter_data=None, and_conditions=None, or_conditions=None, not_conditions=None, projection=None, sort_data=None, page=None, items_per_page=None):
+def searching_boolean_request(
+        data,
+        filter_data=None,
+        and_conditions=None,
+        or_conditions=None,
+        not_conditions=None,
+        in_conditions=None,
+        nin_conditions=None,
+        regex_conditions=None,
+        range_conditions=None,
+        exists_conditions=None,
+        type_conditions=None,
+        elem_match_conditions=None,
+        projection=None,
+        sort_data=None,
+        page=None,
+        items_per_page=None
+):
     data_manager = get_data_manager(data)
     try:
         results = data_manager.searching_boolean(
-            filter_data,
-            and_conditions,
-            or_conditions,
-            not_conditions,
-            projection,
-            sort_data,
-            page,
-            items_per_page
+            filter_data=filter_data,
+            and_conditions=and_conditions,
+            or_conditions=or_conditions,
+            not_conditions=not_conditions,
+            in_conditions=in_conditions,
+            nin_conditions=nin_conditions,
+            regex_conditions=regex_conditions,
+            range_conditions=range_conditions,
+            exists_conditions=exists_conditions,
+            type_conditions=type_conditions,
+            elem_match_conditions=elem_match_conditions,
+            projection=projection,
+            sort_data=sort_data,
+            page=page,
+            items_per_page=items_per_page
         )
         return results
     except CustomValueError as e:

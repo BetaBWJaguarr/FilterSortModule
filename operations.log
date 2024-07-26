@@ -14,3 +14,83 @@
 2024-07-25 10:34:53,748 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 10:34:53] "POST /filtermanager/auth/login HTTP/1.1" 200 -
 2024-07-25 10:35:09,336 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 10:35:09] "POST /filtermanager/backupmanager/backup HTTP/1.1" 200 -
 2024-07-25 10:35:09,336 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 10:35:09] "POST /filtermanager/backupmanager/backup HTTP/1.1" 200 -
+2024-07-25 19:10:52,814 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 19:10:52,814 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 19:10:52,815 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 19:10:52,815 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 19:11:09,675 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 19:11:09] "[35m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 500 -
+2024-07-25 19:11:09,675 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 19:11:09] "[35m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 500 -
+2024-07-25 19:12:17,289 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 19:12:17,289 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 19:12:17,290 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 19:12:17,290 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 19:12:20,462 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 19:12:20] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-25 19:12:20,462 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 19:12:20] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-25 19:12:31,781 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 19:12:31,781 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 19:12:31,781 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 19:12:31,781 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 19:12:35,179 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 19:12:35] "[35m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 500 -
+2024-07-25 19:12:35,179 - werkzeug - INFO - 127.0.0.1 - - [25/Jul/2024 19:12:35] "[35m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 500 -
+2024-07-25 19:12:46,611 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 19:12:46,611 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-25 19:12:46,612 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-25 19:12:46,612 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-26 12:58:23,646 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-26 12:58:23,646 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-26 12:58:23,647 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-26 12:58:23,647 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-26 12:58:45,997 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-26 12:58:45,997 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-26 12:58:45,998 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-26 12:58:45,998 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-26 13:00:42,716 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:00:42] "[35m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 201 -
+2024-07-26 13:00:42,716 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:00:42] "[35m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 201 -
+2024-07-26 13:01:11,120 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:01:11] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-07-26 13:01:11,120 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:01:11] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-07-26 13:01:31,071 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-26 13:01:31,071 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-26 13:01:31,072 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-26 13:01:31,072 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-26 13:01:37,844 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:01:37] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-07-26 13:01:37,844 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:01:37] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-07-26 13:02:23,800 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:23] "[35m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 201 -
+2024-07-26 13:02:23,800 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:23] "[35m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 201 -
+2024-07-26 13:02:28,682 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:28] "GET /filtermanager/auth/verify/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjE5OTE3NDIsInVzZXJfaWQiOiI3NzVjYTUzNS00YjRjLTQyNTEtOTYxNC0wY2JlMzkwN2I5ZmQifQ.sqEz5iCA2HJnJEvnXmz-TK5TKakTtR2x6-jsogl4ot4 HTTP/1.1" 200 -
+2024-07-26 13:02:28,682 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:28] "GET /filtermanager/auth/verify/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjE5OTE3NDIsInVzZXJfaWQiOiI3NzVjYTUzNS00YjRjLTQyNTEtOTYxNC0wY2JlMzkwN2I5ZmQifQ.sqEz5iCA2HJnJEvnXmz-TK5TKakTtR2x6-jsogl4ot4 HTTP/1.1" 200 -
+2024-07-26 13:02:28,827 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:28] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-07-26 13:02:28,827 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:28] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-07-26 13:02:35,757 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:35] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-26 13:02:35,757 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:35] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-26 13:02:52,271 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:52] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-07-26 13:02:52,271 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:52] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-07-26 13:02:58,390 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:58] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-07-26 13:02:58,390 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:02:58] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-07-26 13:04:44,083 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:04:44] "[31m[1mPOST /filtermanager/auth/reset_password HTTP/1.1[0m" 401 -
+2024-07-26 13:04:44,083 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:04:44] "[31m[1mPOST /filtermanager/auth/reset_password HTTP/1.1[0m" 401 -
+2024-07-26 13:05:12,800 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:12] "POST /filtermanager/auth/reset_password HTTP/1.1" 200 -
+2024-07-26 13:05:12,800 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:12] "POST /filtermanager/auth/reset_password HTTP/1.1" 200 -
+2024-07-26 13:05:21,175 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:21] "GET /filtermanager/auth/update_password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjE5ODkyMTEsImVtYWlsIjoidHVuYXJhc2ltb2Nha0BnbWFpbC5jb20ifQ.zNgXhNDmrOCWIDVKZxrWUvANJILUPeHsyPuIxwMyRpw HTTP/1.1" 200 -
+2024-07-26 13:05:21,175 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:21] "GET /filtermanager/auth/update_password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjE5ODkyMTEsImVtYWlsIjoidHVuYXJhc2ltb2Nha0BnbWFpbC5jb20ifQ.zNgXhNDmrOCWIDVKZxrWUvANJILUPeHsyPuIxwMyRpw HTTP/1.1" 200 -
+2024-07-26 13:05:41,592 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:41] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-07-26 13:05:41,592 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:41] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-07-26 13:05:46,640 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:46] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-07-26 13:05:46,640 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:46] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-07-26 13:05:50,943 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:50] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-26 13:05:50,943 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:50] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-26 13:05:55,462 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:55] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-07-26 13:05:55,462 - werkzeug - INFO - 127.0.0.1 - - [26/Jul/2024 13:05:55] "POST /filtermanager/match HTTP/1.1" 200 -

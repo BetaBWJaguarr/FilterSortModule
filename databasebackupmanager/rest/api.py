@@ -1,6 +1,6 @@
 from flask import request, jsonify, Blueprint
 
-from authentication.auth import login_required, limiter
+from authentication.auth import login_required, limiter, permission_required
 from databasebackupmanager.backupmanager import BackupManager
 from errorhandling.errormanager import CustomValueError, setup_logging
 
@@ -13,6 +13,7 @@ logger = setup_logging()
 
 @api.route('/filtermanager/backupmanager/backup', methods=['POST'])
 @login_required
+@permission_required('user_api_use')
 @limiter.limit("5 per minute")
 def backup():
     try:
@@ -50,6 +51,7 @@ def backup():
 
 @api.route('/filtermanager/backupmanager/restore', methods=['POST'])
 @login_required
+@permission_required('user_api_use')
 @limiter.limit("5 per minute")
 def restore_by_date():
     try:
@@ -88,6 +90,7 @@ def restore_by_date():
 
 @api.route('/filtermanager/backupmanager/delete', methods=['POST'])
 @login_required
+@permission_required('user_api_use')
 @limiter.limit("5 per minute")
 def delete_backup():
     try:

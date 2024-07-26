@@ -217,36 +217,111 @@ class DataManager:
         except Exception as e:
             raise CustomValueError(f"Aggregation error: {str(e)}")
 
-    def searching_boolean(self, filter_data=None, and_conditions=None, or_conditions=None, not_conditions=None, projection=None, sort_data=None, page=None, items_per_page=None):
-        cache_key = self._generate_cache_key(filter_data, and_conditions, or_conditions, not_conditions, projection, sort_data, page, items_per_page)
+    def searching_boolean(
+            self,
+            filter_data=None,
+            and_conditions=None,
+            or_conditions=None,
+            not_conditions=None,
+            in_conditions=None,
+            nin_conditions=None,
+            regex_conditions=None,
+            range_conditions=None,
+            exists_conditions=None,
+            type_conditions=None,
+            elem_match_conditions=None,
+            projection=None,
+            sort_data=None,
+            page=None,
+            items_per_page=None
+    ):
+        cache_key = self._generate_cache_key(
+            filter_data,
+            and_conditions,
+            or_conditions,
+            not_conditions,
+            in_conditions,
+            nin_conditions,
+            regex_conditions,
+            range_conditions,
+            exists_conditions,
+            type_conditions,
+            elem_match_conditions,
+            projection,
+            sort_data,
+            page,
+            items_per_page
+        )
+
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
             print(f"Cache hit for key: {cache_key}")
             return cached_result
 
-        query = filter_data if filter_data else {}
+        query = {}
+
+        if filter_data:
+            query.update(filter_data)
 
         if and_conditions:
-            query.update(and_conditions)
+            if "$and" not in query:
+                query["$and"] = []
+            for condition in and_conditions:
+                query["$and"].append(condition)
 
         if or_conditions:
             query["$or"] = or_conditions
 
         if not_conditions:
-            query.update({"$nor": [not_conditions]})
+            query["$nor"] = not_conditions
+
+        if in_conditions:
+            for field, values in in_conditions.items():
+                query[field] = {"$in": values}
+
+        if nin_conditions:
+            for field, values in nin_conditions.items():
+                query[field] = {"$nin": values}
+
+        if regex_conditions:
+            for field, pattern in regex_conditions.items():
+                query[field] = {"$regex": pattern}
+
+        if range_conditions:
+            for field, range_values in range_conditions.items():
+                query[field] = {"$gte": range_values.get("gte"), "$lte": range_values.get("lte")}
+
+        if exists_conditions:
+            for field, exists in exists_conditions.items():
+                query[field] = {"$exists": exists}
+
+        if type_conditions:
+            for field, type_value in type_conditions.items():
+                query[field] = {"$type": type_value}
+
+        if elem_match_conditions:
+            for field, conditions in elem_match_conditions.items():
+                query[field] = {"$elemMatch": conditions}
 
         skip = (page - 1) * items_per_page if page and items_per_page else 0
         limit = items_per_page if items_per_page else 0
 
-        cursor = self.collection.find(query, projection).skip(skip).limit(limit)
+        try:
+            cursor = self.collection.find(query, projection).skip(skip).limit(limit)
 
-        if sort_data:
-            sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
-            cursor = cursor.sort(sort)
+            if sort_data:
+                sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+                cursor = cursor.sort(sort)
 
-        results = list(cursor)
-        encoded_results = json.loads(JSONEncoder().encode(results))
-        self._set_to_cache(cache_key, encoded_results)
-        print(f"Cache set for key: {cache_key}")
-        print(self.get_cache_statistics())
-        return encoded_results
+            results = list(cursor)
+            encoded_results = json.loads(JSONEncoder().encode(results))
+
+            self._set_to_cache(cache_key, encoded_results)
+            print(f"Cache set for key: {cache_key}")
+            print(self.get_cache_statistics())
+
+            return encoded_results
+
+        except PyMongoError as e:
+            print(f"An error occurred: {e}")
+            return []

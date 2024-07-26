@@ -159,30 +159,68 @@ class HighManager:
                     if not isinstance(value, (int, float)):
                         raise ValueError("$lte operator requires a numeric value.")
                     query[key] = value
-
-
                 elif key == '$regex':
                     if not isinstance(value, str):
                         raise ValueError("$regex operator requires a string value.")
                     query[key] = value
-
                 elif key == '$size':
                     if not isinstance(value, int):
                         raise ValueError("$size operator requires an integer value.")
                     query[key] = value
-
                 elif key == '$all':
                     if not isinstance(value, list):
                         raise ValueError("$all operator requires a list of values.")
                     query[key] = value
-
                 elif key == '$mod':
                     if not isinstance(value, list) or len(value) != 2:
                         raise ValueError("$mod operator requires a list of two numeric values.")
                     if not all(isinstance(i, (int, float)) for i in value):
                         raise ValueError("$mod operator requires numeric values.")
                     query[key] = value
-
+                elif key == '$text':
+                    if not isinstance(value, dict) or '$search' not in value:
+                        raise ValueError("$text operator requires a dictionary with a '$search' key.")
+                    query[key] = value
+                elif key == '$geoWithin':
+                    if not isinstance(value, dict):
+                        raise ValueError("$geoWithin operator requires a dictionary value.")
+                    query[key] = value
+                elif key == '$geoIntersects':
+                    if not isinstance(value, dict):
+                        raise ValueError("$geoIntersects operator requires a dictionary value.")
+                    query[key] = value
+                elif key == '$near':
+                    if not isinstance(value, dict):
+                        raise ValueError("$near operator requires a dictionary value.")
+                    query[key] = value
+                elif key == '$nearSphere':
+                    if not isinstance(value, dict):
+                        raise ValueError("$nearSphere operator requires a dictionary value.")
+                    query[key] = value
+                elif key == '$expr':
+                    if not isinstance(value, dict):
+                        raise ValueError("$expr operator requires a dictionary value.")
+                    query[key] = value
+                elif key == '$lookup':
+                    if not isinstance(value, dict):
+                        raise ValueError("$lookup operator requires a dictionary value.")
+                    query[key] = value
+                elif key == '$addFields':
+                    if not isinstance(value, dict):
+                        raise ValueError("$addFields operator requires a dictionary value.")
+                    query[key] = value
+                elif key == '$project':
+                    if not isinstance(value, dict):
+                        raise ValueError("$project operator requires a dictionary value.")
+                    query[key] = value
+                elif key == '$count':
+                    if not isinstance(value, str):
+                        raise ValueError("$count operator requires a string value.")
+                    query[key] = value
+                elif key == '$unset':
+                    if not isinstance(value, list):
+                        raise ValueError("$unset operator requires a list of field names.")
+                    query[key] = value
                 elif isinstance(value, dict):
                     query[key] = self.build_complex_query(value)
                 elif isinstance(value, list):
@@ -195,4 +233,3 @@ class HighManager:
             return cond
 
         return query
-

@@ -7,34 +7,23 @@ import uuid
 import configparser
 from werkzeug.security import check_password_hash, generate_password_hash
 from authentication.emailmanager.emailmanager import send_email
+from authentication.permissionsmanager.permissions import permission_required
 from authentication.tokenmanager.tokenmanager import verify_token, generate_token
 from users.userobjects import User
 from functools import wraps
 from datetime import datetime, timedelta
 
-config = configparser.ConfigParser()
-config.read('config.ini')
 
-try:
-    client = MongoClient(config.get('database', 'connection_string'))
-    db = client[config.get('database', 'db_name')]
-    users_collection = db['users']
-except errors.PyMongoError as e:
-    print(f"Database connection error: {e}")
-    raise SystemExit("Database connection failed. Please check your configuration.")
-
-sessions = {}
-failed_login_attempts = {}
-lockout_time = timedelta(minutes=15)
-
-auth = Blueprint('auth', __name__)
+from authentication.shared import sessions, users_collection, failed_login_attempts
 
 SESSION_TIMEOUT = timedelta(hours=92)
 LOGIN_ATTEMPT_LIMIT = 5
 LOGIN_ATTEMPT_WINDOW = timedelta(minutes=10)
+lockout_time = timedelta(minutes=15)
+
+auth = Blueprint('auth', __name__)
 
 limiter = Limiter(key_func=lambda: request.remote_addr)
-
 
 def login_required(f):
     @wraps(f)
@@ -62,6 +51,7 @@ def register():
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
+        role = 'user'
 
         if not username or not email or not password:
             return jsonify({"error": "Missing required fields"}), 400
@@ -69,7 +59,7 @@ def register():
         if users_collection.find_one({"email": email}):
             return jsonify({"error": "User already exists"}), 400
 
-        user = User(username, email, password)
+        user = User(username, email, password, role=role)
         users_collection.insert_one(user.to_dict())
 
         token = generate_token({'user_id': user.id}, expiration_minutes=60)
@@ -105,7 +95,6 @@ def login():
                     del failed_login_attempts[email]
                 return jsonify({"message": "Login successful", "session_id": session_id}), 200
 
-
         if email in failed_login_attempts:
             failed_login_attempts[email]['count'] += 1
         else:
@@ -122,6 +111,7 @@ def login():
 
 @auth.route('/filtermanager/auth/logout', methods=['POST'])
 @limiter.limit("5 per minute")
+@permission_required('user_api_use')
 @login_required
 def logout():
     try:
@@ -133,6 +123,7 @@ def logout():
 
 @auth.route('/filtermanager/auth/reset_password', methods=['POST'])
 @limiter.limit("5 per minute")
+@permission_required('user_api_use')
 def reset_password():
     try:
         data = request.get_json()
@@ -152,6 +143,7 @@ def reset_password():
 
 @auth.route('/filtermanager/auth/update_info', methods=['PUT'])
 @limiter.limit("5 per minute")
+@permission_required('user_api_use')
 @login_required
 def update_info():
     try:
@@ -174,6 +166,7 @@ def update_info():
 
 @auth.route('/filtermanager/auth/delete_account', methods=['DELETE'])
 @limiter.limit("5 per minute")
+@permission_required('user_api_use')
 @login_required
 def delete_account():
     try:
