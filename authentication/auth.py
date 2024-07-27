@@ -2,9 +2,8 @@ import random
 import string
 from flask import request, jsonify, Blueprint
 from flask_limiter import Limiter
-from pymongo import MongoClient, errors
+from pymongo import errors
 import uuid
-import configparser
 from werkzeug.security import check_password_hash, generate_password_hash
 from authentication.emailmanager.emailmanager import send_email
 from authentication.permissionsmanager.permissions import permission_required
@@ -12,9 +11,7 @@ from authentication.tokenmanager.tokenmanager import verify_token, generate_toke
 from users.userobjects import User
 from functools import wraps
 from datetime import datetime, timedelta
-
-
-from authentication.shared import sessions, users_collection, failed_login_attempts
+from authentication.shared import sessions, users_collection, failed_login_attempts, log_admin_activity
 
 SESSION_TIMEOUT = timedelta(hours=92)
 LOGIN_ATTEMPT_LIMIT = 5
@@ -66,6 +63,8 @@ def register():
         verification_link = f"http://127.0.0.1:5000/filtermanager/auth/verify/{token}"
         send_email("Verify your email", email, f"Click here to verify your email: {verification_link}")
 
+        log_admin_activity("User registered", details=f"New user registered with email: {email}")
+
         return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
@@ -93,6 +92,9 @@ def login():
                 sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
                 if email in failed_login_attempts:
                     del failed_login_attempts[email]
+
+                log_admin_activity("User logged in", details=f"User with email: {email} logged in.")
+
                 return jsonify({"message": "Login successful", "session_id": session_id}), 200
 
         if email in failed_login_attempts:
@@ -104,6 +106,8 @@ def login():
 
         if failed_login_attempts[email]['count'] >= LOGIN_ATTEMPT_LIMIT:
             return jsonify({"error": "Account locked. Please try again later."}), 403
+
+        log_admin_activity("Failed login attempt", details=f"Failed login attempt for email: {email}")
 
         return jsonify({"error": "Invalid email or password"}), 401
     except errors.PyMongoError as e:
@@ -117,6 +121,9 @@ def logout():
     try:
         session_id = request.headers.get('Authorization')
         sessions.pop(session_id, None)
+
+        log_admin_activity("User logged out", details=f"User with session ID: {session_id} logged out.")
+
         return jsonify({"message": "Logout successful"}), 200
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
@@ -135,6 +142,9 @@ def reset_password():
             token = generate_token({'email': email}, expiration_minutes=15)
             reset_link = f"http://127.0.0.1:5000/filtermanager/auth/update_password/{token}"
             send_email("Reset your password", email, f"Click here to reset your password: {reset_link}")
+
+            log_admin_activity("Password reset requested", details=f"Password reset requested for email: {email}")
+
             return jsonify({"message": "Password reset email sent"}), 200
 
         return jsonify({"error": "Email not found"}), 404
@@ -160,6 +170,9 @@ def update_info():
             updated_data['password'] = generate_password_hash(data['password'])
 
         users_collection.update_one({"_id": user_id}, {"$set": updated_data})
+
+        log_admin_activity("User info updated", details=f"User info updated for user ID: {user_id}")
+
         return jsonify({"message": "User info updated successfully"}), 200
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
@@ -175,6 +188,9 @@ def delete_account():
 
         users_collection.delete_one({"_id": user_id})
         sessions.pop(session_id, None)
+
+        log_admin_activity("User account deleted", details=f"User account deleted for user ID: {user_id}")
+
         return jsonify({"message": "User account deleted successfully"}), 200
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
@@ -192,6 +208,8 @@ def verify_email(token):
                 return jsonify({"message": "User is already verified"}), 200
 
             users_collection.update_one({"_id": user_id}, {"$set": {"is_verified": True}})
+
+            log_admin_activity("User email verified", details=f"User email verified for user ID: {user_id}")
 
             return jsonify({"message": "Email verified successfully"}), 200
 
@@ -215,8 +233,11 @@ def update_password(token):
 
         if email:
             users_collection.update_one({"email": email}, {"$set": {"password": hashed_password}})
+
+            log_admin_activity("Password reset", details=f"Password reset for email: {email}")
+
             return jsonify({
-                "message": "Password reseted successfully",
+                "message": "Password reset successfully",
                 "default_password": default_password
             }), 200
 

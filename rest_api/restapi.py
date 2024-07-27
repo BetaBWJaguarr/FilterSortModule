@@ -1,7 +1,7 @@
 from flask import request, jsonify, Blueprint
 from pymongo import MongoClient
 import configparser
-from filtermanager.managers.manager import match_request, sort_request, multi_filter_request, aggregate_request, type_search_request, high_level_query_request,searching_boolean_request
+from filtermanager.managers.manager import match_request, sort_request, multi_filter_request, aggregate_request, type_search_request, high_level_query_request,searching_boolean_request,complex_query_request
 from anonymizer.dataanonymizer import Anonymizer
 from errorhandling.errormanager import CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError
 from errorhandling.errormanager import setup_logging
@@ -330,6 +330,37 @@ def searching_boolean():
             page=page,
             items_per_page=items_per_page
         )
+
+        anonymizer = Anonymizer(connection_string, db_name, collection_name)
+        results = anonymize_results(results, anonymizer)
+
+        return jsonify(results)
+
+    except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e), "details": e.details, "traceback": e.traceback}), 400
+    except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
+@app.route('/filtermanager/complex_query', methods=['POST'])
+@login_required
+@permission_required('user_api_use')
+@limiter.limit("5 per minute")
+def complex_query():
+    try:
+        request_data = request.get_json()
+        connection_string = request_data.get('connection_string')
+        db_name = request_data.get('db_name')
+        collection_name = request_data.get('collection_name')
+        cond = request_data.get('cond')
+
+        valid_keys = {'cond'}
+        if not set(request_data.keys()).issubset(valid_keys):
+            invalid_keys = set(request_data.keys()) - valid_keys
+            raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
+
+        results = complex_query_request(request_data, cond)
 
         anonymizer = Anonymizer(connection_string, db_name, collection_name)
         results = anonymize_results(results, anonymizer)

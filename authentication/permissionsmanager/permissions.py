@@ -3,6 +3,10 @@ from functools import wraps
 from authentication.shared import sessions, users_collection
 
 ROLE_PERMISSIONS = {
+    "admin": {
+        "admin_api_use",
+        "user_api_use",
+    },
     "user": {
         "user_api_use",
     },

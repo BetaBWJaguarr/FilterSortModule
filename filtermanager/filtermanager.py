@@ -87,19 +87,24 @@ class DataManager:
         return encoded_results
 
     def multi_filter(self, filters, sort_data=None, limit=None, skip=None, unwind_field=None, group_by=None, projection=None, facet_fields=None):
-        cache_key = self._generate_cache_key(filters, sort_data, limit, skip, unwind_field, group_by, projection, facet_fields)
+        cache_key = self._generate_cache_key(
+            filters, sort_data, limit, skip, unwind_field, group_by, projection, facet_fields
+        )
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
             print(f"Cache hit for key: {cache_key}")
             return cached_result
 
-        pipeline = [{"$match": filter_data} for filter_data in filters]
+        pipeline = []
+
+        if filters:
+            pipeline.append({"$match": {"$and": filters}})
 
         if unwind_field:
             pipeline.append({"$unwind": f"${unwind_field}"})
 
         if group_by:
-            pipeline.append({"$group": {"_id": group_by, "count": {"$sum": 1}}})
+            pipeline.append({"$group": {"_id": f"${group_by}", "count": {"$sum": 1}}})
 
         if sort_data:
             pipeline.append({"$sort": {k: ASCENDING if v == 1 else DESCENDING for k, v in sort_data.items()}})
@@ -113,12 +118,18 @@ class DataManager:
         if facet_fields:
             pipeline.append({"$facet": OrderedDict(facet_fields)})
 
-        results = list(self.collection.aggregate(pipeline))
-        encoded_results = json.loads(JSONEncoder().encode(results))
-        self._set_to_cache(cache_key, encoded_results)
-        print(f"Cache set for key: {cache_key}")
-        print(self.get_cache_statistics())
-        return encoded_results
+        try:
+            results = list(self.collection.aggregate(pipeline))
+            encoded_results = json.loads(JSONEncoder().encode(results))
+            self._set_to_cache(cache_key, encoded_results)
+            print(f"Cache set for key: {cache_key}")
+            print(self.get_cache_statistics())
+
+            return encoded_results
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return []
 
     def type_search(self, type_value, projection=None, sort_data=None, text_search=None, regex_search=None, date_range=None, greater_than=None, less_than=None, in_list=None, not_in_list=None):
         cache_key = self._generate_cache_key(type_value, projection, sort_data, text_search, regex_search, date_range, greater_than, less_than, in_list, not_in_list)
@@ -325,3 +336,127 @@ class DataManager:
         except PyMongoError as e:
             print(f"An error occurred: {e}")
             return []
+
+    def fuzzysearch(
+            self,
+            search_field,
+            search_term,
+            filter_data=None,
+            projection=None,
+            sort_data=None,
+            page=None,
+            items_per_page=None,
+            case_sensitive=False,
+            highlight_field=None,
+            phrase_matching=False,
+            boost_fields=None
+    ):
+        cache_key = self._generate_cache_key(
+            search_field, search_term, filter_data, projection, sort_data, page, items_per_page, case_sensitive, highlight_field, phrase_matching, boost_fields
+        )
+        cached_result = self._get_from_cache(cache_key)
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
+        query = filter_data if filter_data else {}
+
+        if phrase_matching:
+            search_term = re.escape(search_term)
+            search_term = '.*' + '.*'.join(search_term.split()) + '.*'
+
+        if case_sensitive:
+            query[search_field] = {"$regex": search_term, "$options": ""}
+        else:
+            query[search_field] = {"$regex": search_term, "$options": "i"}
+
+
+        if highlight_field:
+            projection = projection or {}
+            projection[highlight_field] = 1
+
+        skip = (page - 1) * items_per_page if page and items_per_page else 0
+        limit = items_per_page if items_per_page else 0
+
+        try:
+            cursor = self.collection.find(query, projection).skip(skip).limit(limit)
+
+            if sort_data:
+                sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+                cursor = cursor.sort(sort)
+
+            results = list(cursor)
+
+
+            if boost_fields:
+                results.sort(key=lambda x: sum(x.get(field, 0) for field in boost_fields), reverse=True)
+
+
+            if highlight_field:
+                for result in results:
+                    if highlight_field in result:
+                        result[highlight_field] = re.sub(search_term, lambda m: f'**{m.group()}**', result[highlight_field])
+
+            encoded_results = json.loads(JSONEncoder().encode(results))
+            self._set_to_cache(cache_key, encoded_results)
+            print(f"Cache set for key: {cache_key}")
+            print(self.get_cache_statistics())
+            return encoded_results
+
+        except PyMongoError as e:
+            print(f"An error occurred: {e}")
+            return []
+
+    def keywordhighlighting(
+            self,
+            search_field,
+            search_term,
+            filter_data=None,
+            projection=None,
+            sort_data=None,
+            page=None,
+            items_per_page=None,
+            highlight_tag='<mark>'
+    ):
+        cache_key = self._generate_cache_key(
+            search_field, search_term, filter_data, projection, sort_data, page, items_per_page, highlight_tag
+        )
+        cached_result = self._get_from_cache(cache_key)
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
+        query = filter_data if filter_data else {}
+
+        query[search_field] = {"$regex": search_term, "$options": "i"}  # Case-insensitive search
+
+        skip = (page - 1) * items_per_page if page and items_per_page else 0
+        limit = items_per_page if items_per_page else 0
+
+        try:
+            cursor = self.collection.find(query, projection).skip(skip).limit(limit)
+
+            if sort_data:
+                sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+                cursor = cursor.sort(sort)
+
+            results = list(cursor)
+
+            for result in results:
+                if search_field in result and result[search_field]:
+                    result[search_field] = self._highlight_keywords(result[search_field], search_term, highlight_tag)
+
+            encoded_results = json.loads(JSONEncoder().encode(results))
+            self._set_to_cache(cache_key, encoded_results)
+            print(f"Cache set for key: {cache_key}")
+            print(self.get_cache_statistics())
+            return encoded_results
+
+        except PyMongoError as e:
+            print(f"An error occurred: {e}")
+            return []
+
+    def _highlight_keywords(self, text, search_term, highlight_tag):
+        search_term = re.escape(search_term)
+        pattern = re.compile(search_term, re.IGNORECASE)
+        return pattern.sub(f'{highlight_tag}\\0{highlight_tag[1:]}', text)

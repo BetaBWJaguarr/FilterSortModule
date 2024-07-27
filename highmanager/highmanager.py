@@ -110,6 +110,15 @@ class HighManager:
         if not isinstance(cond, (dict, list)):
             raise ValueError("Conditions must be either a dictionary or a list.")
 
+        def process_value(value):
+            if isinstance(value, (dict, list)):
+                return self.build_complex_query(value)
+            return value
+
+        def check_type(value, expected_type, operator):
+            if not isinstance(value, expected_type):
+                raise ValueError(f"{operator} operator requires a {expected_type} value.")
+
         query = {}
 
         if isinstance(cond, dict):
@@ -117,119 +126,79 @@ class HighManager:
                 if not isinstance(key, str):
                     raise ValueError("Keys must be strings.")
 
-                if key in ['$and', '$or', '$nor']:
+                if key in ['$and', '$or', '$nor', '$in', '$nin', '$elemMatch', '$all']:
                     if not isinstance(value, list):
                         raise ValueError(f"The value of the {key} operator must be a list.")
-                    query[key] = [self.build_complex_query(sub_cond) for sub_cond in value]
-                elif key == '$not':
-                    query[key] = self.build_complex_query(value)
-                elif key == '$elemMatch':
+                    query[key] = [process_value(sub_cond) for sub_cond in value]
+
+                elif key in ['$not', '$regex', '$size', '$mod', '$text', '$geoWithin', '$geoIntersects', '$near', '$nearSphere', '$expr', '$lookup', '$addFields', '$project']:
                     if not isinstance(value, dict):
-                        raise ValueError("$elemMatch requires a dictionary value.")
-                    query[key] = self.build_complex_query(value)
-                elif key == '$exists':
-                    if not isinstance(value, bool):
-                        raise ValueError("$exists operator requires a boolean value.")
+                        raise ValueError(f"{key} operator requires a dictionary value.")
+                    query[key] = process_value(value)
+
+                elif key in ['$exists', '$type', '$gt', '$lt', '$gte', '$lte', '$count']:
+                    if key == '$exists':
+                        check_type(value, bool, "$exists")
+                    elif key in ['$type', '$count']:
+                        check_type(value, (int, str), key)
+                    else:
+                        check_type(value, (int, float), key)
                     query[key] = value
-                elif key == '$type':
-                    if not isinstance(value, (int, str)):
-                        raise ValueError("$type operator requires an integer or string value.")
-                    query[key] = value
-                elif key == '$in':
-                    if not isinstance(value, list):
-                        raise ValueError("$in operator requires a list of values.")
-                    query[key] = [self.build_complex_query(item) for item in value]
-                elif key == '$nin':
-                    if not isinstance(value, list):
-                        raise ValueError("$nin operator requires a list of values.")
-                    query[key] = [self.build_complex_query(item) for item in value]
-                elif key == '$gt':
-                    if not isinstance(value, (int, float)):
-                        raise ValueError("$gt operator requires a numeric value.")
-                    query[key] = value
-                elif key == '$lt':
-                    if not isinstance(value, (int, float)):
-                        raise ValueError("$lt operator requires a numeric value.")
-                    query[key] = value
-                elif key == '$gte':
-                    if not isinstance(value, (int, float)):
-                        raise ValueError("$gte operator requires a numeric value.")
-                    query[key] = value
-                elif key == '$lte':
-                    if not isinstance(value, (int, float)):
-                        raise ValueError("$lte operator requires a numeric value.")
-                    query[key] = value
-                elif key == '$regex':
-                    if not isinstance(value, str):
-                        raise ValueError("$regex operator requires a string value.")
-                    query[key] = value
-                elif key == '$size':
-                    if not isinstance(value, int):
-                        raise ValueError("$size operator requires an integer value.")
-                    query[key] = value
-                elif key == '$all':
-                    if not isinstance(value, list):
-                        raise ValueError("$all operator requires a list of values.")
-                    query[key] = value
-                elif key == '$mod':
-                    if not isinstance(value, list) or len(value) != 2:
-                        raise ValueError("$mod operator requires a list of two numeric values.")
-                    if not all(isinstance(i, (int, float)) for i in value):
-                        raise ValueError("$mod operator requires numeric values.")
-                    query[key] = value
-                elif key == '$text':
-                    if not isinstance(value, dict) or '$search' not in value:
-                        raise ValueError("$text operator requires a dictionary with a '$search' key.")
-                    query[key] = value
-                elif key == '$geoWithin':
-                    if not isinstance(value, dict):
-                        raise ValueError("$geoWithin operator requires a dictionary value.")
-                    query[key] = value
-                elif key == '$geoIntersects':
-                    if not isinstance(value, dict):
-                        raise ValueError("$geoIntersects operator requires a dictionary value.")
-                    query[key] = value
-                elif key == '$near':
-                    if not isinstance(value, dict):
-                        raise ValueError("$near operator requires a dictionary value.")
-                    query[key] = value
-                elif key == '$nearSphere':
-                    if not isinstance(value, dict):
-                        raise ValueError("$nearSphere operator requires a dictionary value.")
-                    query[key] = value
-                elif key == '$expr':
-                    if not isinstance(value, dict):
-                        raise ValueError("$expr operator requires a dictionary value.")
-                    query[key] = value
-                elif key == '$lookup':
-                    if not isinstance(value, dict):
-                        raise ValueError("$lookup operator requires a dictionary value.")
-                    query[key] = value
-                elif key == '$addFields':
-                    if not isinstance(value, dict):
-                        raise ValueError("$addFields operator requires a dictionary value.")
-                    query[key] = value
-                elif key == '$project':
-                    if not isinstance(value, dict):
-                        raise ValueError("$project operator requires a dictionary value.")
-                    query[key] = value
-                elif key == '$count':
-                    if not isinstance(value, str):
-                        raise ValueError("$count operator requires a string value.")
-                    query[key] = value
+
                 elif key == '$unset':
                     if not isinstance(value, list):
                         raise ValueError("$unset operator requires a list of field names.")
                     query[key] = value
-                elif isinstance(value, dict):
-                    query[key] = self.build_complex_query(value)
-                elif isinstance(value, list):
-                    query[key] = [self.build_complex_query(item) for item in value]
+
+                elif isinstance(value, (dict, list)):
+                    query[key] = process_value(value)
                 else:
                     query[key] = value
+
         elif isinstance(cond, list):
-            query = [self.build_complex_query(item) for item in cond]
+            query = [process_value(item) for item in cond]
         else:
             return cond
 
         return query
+
+    def utilize_index(self, query=None, sort_data=None):
+        if not query and not sort_data:
+            print("No query or sort data provided to optimize indexes.")
+            return
+
+        index_keys = set()
+        if sort_data:
+            index_keys.update(sort_data.keys())
+
+        if query:
+            def extract_fields(subquery):
+                if isinstance(subquery, dict):
+                    for key, value in subquery.items():
+                        if key.startswith('$'):
+                            if isinstance(value, (dict, list)):
+                                extract_fields(value)
+                        else:
+                            index_keys.add(key)
+
+            extract_fields(query)
+
+
+        existing_indexes = self.collection.index_information()
+        existing_index_keys = {tuple(index['key']): index for index in existing_indexes.values()}
+
+
+        index_keys = list(index_keys)
+        new_index_keys = [(key, ASCENDING) for key in index_keys]
+
+        missing_indexes = [index for index in new_index_keys if index not in existing_index_keys]
+
+        if missing_indexes:
+            for index in missing_indexes:
+                self.collection.create_index(index, background=True)
+                print(f"Created index: {index}")
+        else:
+            print("All required indexes are already in place.")
+
+
+        print("Index utilization completed.")

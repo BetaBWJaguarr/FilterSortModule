@@ -116,3 +116,16 @@ def high_level_query_request(data, filter_data=None, projection=None, sort_data=
         return results
     except CustomValueError as e:
         return {"error": str(e)}, 400
+
+def complex_query_request(data, cond):
+    high_manager = get_high_manager(data)
+
+    try:
+
+        results = high_manager.build_complex_query(cond)
+
+        return results
+    except CustomValueError as e:
+        return {"error": str(e)}, 400
+    except Exception as e:
+        return {"error": str(e)}, 500
