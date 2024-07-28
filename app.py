@@ -17,7 +17,7 @@ limiter.init_app(app)
 app.register_blueprint(restapi_app)
 app.register_blueprint(databasebackupmanager_app)
 app.register_blueprint(auth_app)
-app.register_blueprint(admin_api, url_prefix='/admin')
+app.register_blueprint(admin_api)
 
 config = configparser.ConfigParser()
 config.read('config.ini')

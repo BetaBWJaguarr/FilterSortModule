@@ -428,7 +428,18 @@ class DataManager:
 
         query = filter_data if filter_data else {}
 
-        query[search_field] = {"$regex": search_term, "$options": "i"}  # Case-insensitive search
+        if isinstance(search_field, list) and isinstance(search_term, list):
+            query['$or'] = [
+                {field: {"$regex": term, "$options": "i"}}
+                for field in search_field for term in search_term
+            ]
+        elif isinstance(search_field, list):
+            query['$or'] = [
+                {field: {"$regex": search_term, "$options": "i"}}
+                for field in search_field
+            ]
+        else:
+            query[search_field] = {"$regex": search_term, "$options": "i"}  # Case-insensitive search
 
         skip = (page - 1) * items_per_page if page and items_per_page else 0
         limit = items_per_page if items_per_page else 0
@@ -443,8 +454,13 @@ class DataManager:
             results = list(cursor)
 
             for result in results:
-                if search_field in result and result[search_field]:
-                    result[search_field] = self._highlight_keywords(result[search_field], search_term, highlight_tag)
+                if isinstance(search_field, list):
+                    for field in search_field:
+                        if field in result and result[field]:
+                            result[field] = self._highlight_keywords(result[field], search_term, highlight_tag)
+                else:
+                    if search_field in result and result[search_field]:
+                        result[search_field] = self._highlight_keywords(result[search_field], search_term, highlight_tag)
 
             encoded_results = json.loads(JSONEncoder().encode(results))
             self._set_to_cache(cache_key, encoded_results)
@@ -457,6 +473,65 @@ class DataManager:
             return []
 
     def _highlight_keywords(self, text, search_term, highlight_tag):
-        search_term = re.escape(search_term)
-        pattern = re.compile(search_term, re.IGNORECASE)
-        return pattern.sub(f'{highlight_tag}\\0{highlight_tag[1:]}', text)
+        if isinstance(search_term, list):
+            for term in search_term:
+                text = re.sub(re.escape(term), f'{highlight_tag}\\0{highlight_tag[1:]}', text, flags=re.IGNORECASE)
+        else:
+            text = re.sub(re.escape(search_term), f'{highlight_tag}\\0{highlight_tag[1:]}', text, flags=re.IGNORECASE)
+        return text
+
+
+    def customsortingoptions(self, query=None, custom_sort=None):
+        cache_key = self._generate_cache_key(query, custom_sort)
+        cached_result = self._get_from_cache(cache_key)
+
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
+        if query is None:
+            query = {}
+
+        sort = []
+
+        if custom_sort:
+            for field, order in custom_sort:
+                if order.lower() == 'asc':
+                    sort.append((field, ASCENDING))
+                elif order.lower() == 'desc':
+                    sort.append((field, DESCENDING))
+                elif order.lower() == 'lenasc':
+                    sort.append((field, ASCENDING))
+                elif order.lower() == 'lendesc':
+                    sort.append((field, DESCENDING))
+                elif order.lower() == 'custom':
+                    sort.append((field, ASCENDING))
+                else:
+                    raise ValueError(f"Invalid sort order: {order}. Use 'asc', 'desc', 'lenasc', 'lendesc', or 'custom'.")
+
+        try:
+            cursor = self.collection.find(query)
+
+            if sort:
+                cursor = cursor.sort(sort)
+
+            results = list(cursor)
+
+            for field, order in custom_sort:
+                if order.lower() == 'lenasc':
+                    results.sort(key=lambda x: len(str(x.get(field, ""))))
+                elif order.lower() == 'lendesc':
+                    results.sort(key=lambda x: len(str(x.get(field, ""))), reverse=True)
+                elif order.lower() == 'custom':
+                    results.sort(key=lambda x: x.get(field, 0))
+
+            encoded_results = json.loads(JSONEncoder().encode(results))
+            self._set_to_cache(cache_key, encoded_results)
+            print(f"Cache set for key: {cache_key}")
+            print(self.get_cache_statistics())
+            return encoded_results
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return []
+

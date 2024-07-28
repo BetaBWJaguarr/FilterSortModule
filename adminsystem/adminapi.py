@@ -14,6 +14,8 @@ def generate_report():
     try:
         start_date_str = request.args.get('start_date')
         end_date_str = request.args.get('end_date')
+        action_filter = request.args.get('action')
+        status_filter = request.args.get('status')
 
         if not start_date_str or not end_date_str:
             return jsonify({"error": "start_date and end_date parameters are required"}), 400
@@ -27,15 +29,24 @@ def generate_report():
         if start_date > end_date:
             return jsonify({"error": "start_date cannot be after end_date"}), 400
 
-        logs = admin_logs.find({
+        query = {
             "timestamp": {"$gte": start_date, "$lte": end_date}
-        })
+        }
 
+        if action_filter:
+            query["action"] = action_filter
+
+        if status_filter:
+            query["status"] = status_filter
+
+        logs = admin_logs.find(query)
 
         df = pd.DataFrame(list(logs))
 
         if df.empty:
             return jsonify({"message": "No data available for the given date range"}), 404
+
+        df.drop(columns=['_id'], inplace=True)
 
         output = StringIO()
         df.to_csv(output, index=False)

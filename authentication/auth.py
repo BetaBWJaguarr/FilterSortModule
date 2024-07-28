@@ -1,6 +1,6 @@
 import random
 import string
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, send_file
 from flask_limiter import Limiter
 from pymongo import errors
 import uuid
@@ -12,11 +12,19 @@ from users.userobjects import User
 from functools import wraps
 from datetime import datetime, timedelta
 from authentication.shared import sessions, users_collection, failed_login_attempts, log_admin_activity
+import json
+import io
 
 SESSION_TIMEOUT = timedelta(hours=92)
 LOGIN_ATTEMPT_LIMIT = 5
 LOGIN_ATTEMPT_WINDOW = timedelta(minutes=10)
-lockout_time = timedelta(minutes=15)
+LOCKOUT_TIME = timedelta(minutes=15)
+PASSWORD_MIN_LENGTH = 6
+PASSWORD_COMPLEXITY_MSG = (
+    "Password must be at least 6 characters long and include letters, digits, "
+    "and at least one of the special characters: '!' or '?'."
+)
+
 
 auth = Blueprint('auth', __name__)
 
@@ -40,6 +48,15 @@ def login_required(f):
         return f(*args, **kwargs)
     return wrapper
 
+def password_complexity_check(password):
+    if (
+            len(password) >= PASSWORD_MIN_LENGTH
+            and any(char.isdigit() for char in password)
+            and any(char in "!?" for char in password)
+    ):
+        return True
+    return False
+
 @auth.route('/filtermanager/auth/register', methods=['POST'])
 @limiter.limit("5 per minute")
 def register():
@@ -53,6 +70,9 @@ def register():
         if not username or not email or not password:
             return jsonify({"error": "Missing required fields"}), 400
 
+        if not password_complexity_check(password):
+            return jsonify({"error": PASSWORD_COMPLEXITY_MSG}), 400
+
         if users_collection.find_one({"email": email}):
             return jsonify({"error": "User already exists"}), 400
 
@@ -63,11 +83,18 @@ def register():
         verification_link = f"http://127.0.0.1:5000/filtermanager/auth/verify/{token}"
         send_email("Verify your email", email, f"Click here to verify your email: {verification_link}")
 
-        log_admin_activity("User registered", details=f"New user registered with email: {email}")
+        log_admin_activity(
+            action="User registered",
+            details=f"New user registered with email: {email}",
+            status="success",
+            metadata={"email": email, "user_id": user.id}
+        )
 
-        return jsonify({"message": "User registered successfully", "user_id": user.id}), 201
+        return jsonify({"message": "User registered successfully. Please verify your email.", "user_id": user.id}), 201
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/login', methods=['POST'])
 def login():
@@ -78,7 +105,10 @@ def login():
 
         if email in failed_login_attempts:
             failed_attempt = failed_login_attempts[email]
-            if failed_attempt['count'] >= LOGIN_ATTEMPT_LIMIT and datetime.utcnow() - failed_attempt['last_failed_attempt'] < LOGIN_ATTEMPT_WINDOW:
+            if (
+                    failed_attempt['count'] >= LOGIN_ATTEMPT_LIMIT
+                    and datetime.utcnow() - failed_attempt['last_failed_attempt'] < LOCKOUT_TIME
+            ):
                 return jsonify({"error": "Account locked. Please try again later."}), 403
 
         user_data = users_collection.find_one({"email": email})
@@ -93,7 +123,12 @@ def login():
                 if email in failed_login_attempts:
                     del failed_login_attempts[email]
 
-                log_admin_activity("User logged in", details=f"User with email: {email} logged in.")
+                log_admin_activity(
+                    action="User logged in",
+                    details=f"User with email: {email} logged in.",
+                    status="success",
+                    metadata={"email": email, "user_id": user_data['_id']}
+                )
 
                 return jsonify({"message": "Login successful", "session_id": session_id}), 200
 
@@ -107,11 +142,18 @@ def login():
         if failed_login_attempts[email]['count'] >= LOGIN_ATTEMPT_LIMIT:
             return jsonify({"error": "Account locked. Please try again later."}), 403
 
-        log_admin_activity("Failed login attempt", details=f"Failed login attempt for email: {email}")
+        log_admin_activity(
+            action="Failed login attempt",
+            details=f"Failed login attempt for email: {email}",
+            status="failed",
+            metadata={"email": email}
+        )
 
         return jsonify({"error": "Invalid email or password"}), 401
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/logout', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -122,11 +164,18 @@ def logout():
         session_id = request.headers.get('Authorization')
         sessions.pop(session_id, None)
 
-        log_admin_activity("User logged out", details=f"User with session ID: {session_id} logged out.")
+        log_admin_activity(
+            action="User logged out",
+            details=f"User with session ID: {session_id} logged out.",
+            status="success",
+            metadata={"session_id": session_id}
+        )
 
         return jsonify({"message": "Logout successful"}), 200
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/reset_password', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -143,13 +192,20 @@ def reset_password():
             reset_link = f"http://127.0.0.1:5000/filtermanager/auth/update_password/{token}"
             send_email("Reset your password", email, f"Click here to reset your password: {reset_link}")
 
-            log_admin_activity("Password reset requested", details=f"Password reset requested for email: {email}")
+            log_admin_activity(
+                action="Password reset requested",
+                details=f"Password reset requested for email: {email}",
+                status="success",
+                metadata={"email": email}
+            )
 
             return jsonify({"message": "Password reset email sent"}), 200
 
         return jsonify({"error": "Email not found"}), 404
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/update_info', methods=['PUT'])
 @limiter.limit("5 per minute")
@@ -167,15 +223,24 @@ def update_info():
         if 'email' in data:
             updated_data['email'] = data['email']
         if 'password' in data:
+            if not password_complexity_check(data['password']):
+                return jsonify({"error": PASSWORD_COMPLEXITY_MSG}), 400
             updated_data['password'] = generate_password_hash(data['password'])
 
         users_collection.update_one({"_id": user_id}, {"$set": updated_data})
 
-        log_admin_activity("User info updated", details=f"User info updated for user ID: {user_id}")
+        log_admin_activity(
+            action="User info updated",
+            details=f"User info updated for user ID: {user_id}",
+            status="success",
+            metadata={"user_id": user_id, "updated_fields": list(updated_data.keys())}
+        )
 
-        return jsonify({"message": "User info updated successfully"}), 200
+        return jsonify({"message": "User information updated successfully"}), 200
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
 
 @auth.route('/filtermanager/auth/delete_account', methods=['DELETE'])
 @limiter.limit("5 per minute")
@@ -189,11 +254,78 @@ def delete_account():
         users_collection.delete_one({"_id": user_id})
         sessions.pop(session_id, None)
 
-        log_admin_activity("User account deleted", details=f"User account deleted for user ID: {user_id}")
+        log_admin_activity(
+            action="User account deleted",
+            details=f"User account deleted for user ID: {user_id}",
+            status="success",
+            metadata={"user_id": user_id}
+        )
 
-        return jsonify({"message": "User account deleted successfully"}), 200
+        return jsonify({"message": "Account deleted successfully"}), 200
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
+@auth.route('/filtermanager/auth/export_data', methods=['GET'])
+@permission_required('user_api_use')
+@login_required
+def export_data():
+    try:
+        session_id = request.headers.get('Authorization')
+
+        user_id = sessions[session_id]['user_id']
+
+        user_data = users_collection.find_one({"_id": user_id}, {"password": 0})
+
+        if user_data:
+            user_data_json = json.dumps(user_data, default=str)
+            buffer = io.BytesIO(user_data_json.encode('utf-8'))
+            buffer.seek(0)
+
+            log_admin_activity(
+                action="User data export",
+                details=f"User data exported successfully for user ID: {user_id}.",
+                status="success",
+                metadata={"user_id": user_id, "export_status": "successful"}
+            )
+
+            return send_file(
+                buffer,
+                as_attachment=True,
+                download_name=f"user_data_{user_id}.json",
+                mimetype='application/json'
+            )
+
+        log_admin_activity(
+            action="User data export failed",
+            details=f"User data export failed: User not found for user ID: {user_id}.",
+            status="failed",
+            metadata={"user_id": user_id, "export_status": "failed"}
+        )
+
+        return jsonify({"error": "User not found"}), 404
+
+    except errors.PyMongoError as e:
+        log_admin_activity(
+            action="User data export failed",
+            details=f"Database error during export for user ID: {user_id}. Error: {str(e)}",
+            status="failed",
+            metadata={"user_id": user_id, "export_status": "failed", "error": str(e)}
+        )
+
+        return jsonify({"error": "Database error. Please try again later."}), 500
+
+    except Exception as e:
+        log_admin_activity(
+            action="User data export failed",
+            details=f"Unexpected error during export for user ID: {user_id}. Error: {str(e)}",
+            status="failed",
+            metadata={"user_id": user_id, "export_status": "failed", "error": str(e)}
+        )
+
+        # Return a generic error message for unexpected exceptions
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
 
 #Backend Auth Manager
 @auth.route('/filtermanager/auth/verify/<token>', methods=['GET'])
@@ -205,20 +337,43 @@ def verify_email(token):
 
         if user:
             if user.get('is_verified'):
+                log_admin_activity(
+                    action="User email verification attempted",
+                    details=f"User with ID {user_id} is already verified",
+                    status="failed",
+                    metadata={"user_id": user_id, "is_verified": True}
+                )
                 return jsonify({"message": "User is already verified"}), 200
 
             users_collection.update_one({"_id": user_id}, {"$set": {"is_verified": True}})
 
-            log_admin_activity("User email verified", details=f"User email verified for user ID: {user_id}")
+            log_admin_activity(
+                action="User email verified",
+                details=f"User email verified for user ID: {user_id}",
+                status="success",
+                metadata={"user_id": user_id, "is_verified": True}
+            )
 
             return jsonify({"message": "Email verified successfully"}), 200
 
+        log_admin_activity(
+            action="User email verification failed",
+            details="Attempted email verification for invalid user",
+            status="failed",
+            metadata={"user_id": user_id, "is_verified": False}
+        )
         return jsonify({"error": "Invalid user"}), 400
 
+    log_admin_activity(
+        action="Email verification token invalid or expired",
+        details="Invalid or expired token used for email verification",
+        status="failed",
+        metadata={"token": token}
+    )
     return jsonify({"error": "Invalid or expired token"}), 400
 
 def generate_default_password():
-    length = 12
+    length = 9
     chars = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(chars) for _ in range(length))
 
@@ -234,12 +389,30 @@ def update_password(token):
         if email:
             users_collection.update_one({"email": email}, {"$set": {"password": hashed_password}})
 
-            log_admin_activity("Password reset", details=f"Password reset for email: {email}")
+            log_admin_activity(
+                action="Password reset",
+                details=f"Password reset for email: {email}",
+                status="success",
+                metadata={"email": email, "password_reset": True}
+            )
 
             return jsonify({
                 "message": "Password reset successfully",
                 "default_password": default_password
             }), 200
 
+        log_admin_activity(
+            action="Password reset failed",
+            details="Attempted password reset for missing email",
+            status="failed",
+            metadata={"email": None, "password_reset": False}
+        )
         return jsonify({"error": "Missing email"}), 400
+
+    log_admin_activity(
+        action="Password reset token invalid or expired",
+        details="Invalid or expired token used for password reset",
+        status="failed",
+        metadata={"token": token}
+    )
     return jsonify({"error": "Invalid or expired token"}), 400
