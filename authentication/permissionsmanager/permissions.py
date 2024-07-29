@@ -3,13 +3,8 @@ from functools import wraps
 from authentication.shared import sessions, users_collection
 
 ROLE_PERMISSIONS = {
-    "admin": {
-        "admin_api_use",
-        "user_api_use",
-    },
-    "user": {
-        "user_api_use",
-    },
+    "admin": {"admin_api_use", "user_api_use"},
+    "user": {"user_api_use"},
 }
 
 def has_permission(role, permission):
@@ -20,16 +15,18 @@ def permission_required(permission):
         @wraps(f)
         def wrapper(*args, **kwargs):
             session_id = request.headers.get('Authorization')
-            if not session_id or session_id not in sessions:
+
+            if not session_id:
                 return jsonify({"error": "Unauthorized"}), 401
 
             user_session = sessions.get(session_id)
-            user_id = user_session['user_id']
-            user = users_collection.find_one({"_id": user_id})
+            if not user_session:
+                return jsonify({"error": "Unauthorized"}), 401
 
-            if user and has_permission(user.get('role'), permission):
-                return f(*args, **kwargs)
+            user = users_collection.find_one({"_id": user_session['user_id']})
+            if not user or not has_permission(user.get('role'), permission):
+                return jsonify({"error": "Permission denied"}), 403
 
-            return jsonify({"error": "Permission denied"}), 403
+            return f(*args, **kwargs)
         return wrapper
     return decorator

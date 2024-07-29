@@ -220,23 +220,25 @@ def update_info():
         updated_data = {}
         if 'username' in data:
             updated_data['username'] = data['username']
-        if 'email' in data:
-            updated_data['email'] = data['email']
         if 'password' in data:
             if not password_complexity_check(data['password']):
                 return jsonify({"error": PASSWORD_COMPLEXITY_MSG}), 400
             updated_data['password'] = generate_password_hash(data['password'])
 
-        users_collection.update_one({"_id": user_id}, {"$set": updated_data})
+        if updated_data:
+            users_collection.update_one({"_id": user_id}, {"$set": updated_data})
 
-        log_admin_activity(
-            action="User info updated",
-            details=f"User info updated for user ID: {user_id}",
-            status="success",
-            metadata={"user_id": user_id, "updated_fields": list(updated_data.keys())}
-        )
+            log_admin_activity(
+                action="User info updated",
+                details=f"User info updated for user ID: {user_id}",
+                status="success",
+                metadata={"user_id": user_id, "updated_fields": list(updated_data.keys())}
+            )
 
-        return jsonify({"message": "User information updated successfully"}), 200
+            return jsonify({"message": "User information updated successfully"}), 200
+        else:
+            return jsonify({"error": "No valid fields provided for update"}), 400
+
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
     except Exception as e:
@@ -266,6 +268,36 @@ def delete_account():
         return jsonify({"error": "Database error. Please try again later."}), 500
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
+@auth.route('/filtermanager/auth/email_change', methods=['PUT'])
+@limiter.limit("5 per minute")
+@permission_required('user_api_use')
+@login_required
+def request_email_change():
+    try:
+        data = request.get_json()
+        new_email = data.get('new_email')
+        session_id = request.headers.get('Authorization')
+        user_id = sessions[session_id]['user_id']
+
+        if users_collection.find_one({"email": new_email}):
+            return jsonify({"error": "Email already in use"}), 400
+
+        users_collection.update_one({"_id": user_id}, {"$set": {"is_verified": False}})
+
+
+        token = generate_token({'user_id': user_id, 'new_email': new_email}, expiration_minutes=15)
+        verification_link = f"http://127.0.0.1:5000/filtermanager/auth/verify_email_change/{token}"
+
+
+        send_email("Confirm your new email address", new_email, f"Click here to confirm your email change: {verification_link}")
+
+        return jsonify({"message": "A verification email has been sent to your new email address."}), 200
+    except errors.PyMongoError as e:
+        return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
 
 @auth.route('/filtermanager/auth/export_data', methods=['GET'])
 @permission_required('user_api_use')
@@ -324,7 +356,6 @@ def export_data():
             metadata={"user_id": user_id, "export_status": "failed", "error": str(e)}
         )
 
-        # Return a generic error message for unexpected exceptions
         return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
 
 #Backend Auth Manager
@@ -416,3 +447,35 @@ def update_password(token):
         metadata={"token": token}
     )
     return jsonify({"error": "Invalid or expired token"}), 400
+
+@auth.route('/filtermanager/auth/verify_email_change/<token>', methods=['GET'])
+def verify_email_change(token):
+    data = verify_token(token)
+    if data:
+        user_id = data.get('user_id')
+        new_email = data.get('new_email')
+
+        if user_id and new_email:
+            user = users_collection.find_one({"_id": user_id})
+
+            if user:
+                if user.get('email') == new_email:
+                    return jsonify({"message": "Email address is already verified."}), 200
+
+                users_collection.update_one({"_id": user_id}, {"$set": {"email": new_email, "is_verified": True}})
+
+                log_admin_activity(
+                    action="User email address changed",
+                    details=f"User email address updated for user ID: {user_id}",
+                    status="success",
+                    metadata={"user_id": user_id, "new_email": new_email}
+                )
+
+                return jsonify({"message": "Email address successfully updated."}), 200
+
+            return jsonify({"error": "User not found"}), 404
+
+        return jsonify({"error": "Invalid token data"}), 400
+
+    return jsonify({"error": "Invalid or expired token"}), 400
+

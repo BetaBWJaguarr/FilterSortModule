@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, send_file
 import pandas as pd
 from datetime import datetime
 from pymongo import errors
-from io import StringIO
+from io import BytesIO
 from authentication.shared import admin_logs
 from authentication.permissionsmanager.permissions import permission_required
 
@@ -48,7 +48,7 @@ def generate_report():
 
         df.drop(columns=['_id'], inplace=True)
 
-        output = StringIO()
+        output = BytesIO()
         df.to_csv(output, index=False)
         output.seek(0)
 
@@ -60,3 +60,5 @@ def generate_report():
         )
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500

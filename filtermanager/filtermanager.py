@@ -360,16 +360,12 @@ class DataManager:
             return cached_result
 
         query = filter_data if filter_data else {}
+        regex_flags = "" if case_sensitive else "i"
 
         if phrase_matching:
-            search_term = re.escape(search_term)
-            search_term = '.*' + '.*'.join(search_term.split()) + '.*'
-
-        if case_sensitive:
-            query[search_field] = {"$regex": search_term, "$options": ""}
-        else:
-            query[search_field] = {"$regex": search_term, "$options": "i"}
-
+            search_term = '.*' + '.*'.join(re.escape(term) for term in search_term.split()) + '.*'
+        regex = re.compile(search_term, flags=regex_flags)
+        query[search_field] = {"$regex": regex}
 
         if highlight_field:
             projection = projection or {}
@@ -387,15 +383,13 @@ class DataManager:
 
             results = list(cursor)
 
-
             if boost_fields:
                 results.sort(key=lambda x: sum(x.get(field, 0) for field in boost_fields), reverse=True)
-
 
             if highlight_field:
                 for result in results:
                     if highlight_field in result:
-                        result[highlight_field] = re.sub(search_term, lambda m: f'**{m.group()}**', result[highlight_field])
+                        result[highlight_field] = re.sub(regex, lambda m: f'**{m.group()}**', result[highlight_field])
 
             encoded_results = json.loads(JSONEncoder().encode(results))
             self._set_to_cache(cache_key, encoded_results)
@@ -427,19 +421,15 @@ class DataManager:
             return cached_result
 
         query = filter_data if filter_data else {}
+        regex_flags = "i"
+        search_term = [re.escape(term) for term in search_term] if isinstance(search_term, list) else [re.escape(search_term)]
+        regex_pattern = '|'.join(search_term)
+        regex = re.compile(regex_pattern, flags=regex_flags)
 
-        if isinstance(search_field, list) and isinstance(search_term, list):
-            query['$or'] = [
-                {field: {"$regex": term, "$options": "i"}}
-                for field in search_field for term in search_term
-            ]
-        elif isinstance(search_field, list):
-            query['$or'] = [
-                {field: {"$regex": search_term, "$options": "i"}}
-                for field in search_field
-            ]
+        if isinstance(search_field, list):
+            query['$or'] = [{field: {"$regex": regex}} for field in search_field]
         else:
-            query[search_field] = {"$regex": search_term, "$options": "i"}  # Case-insensitive search
+            query[search_field] = {"$regex": regex}
 
         skip = (page - 1) * items_per_page if page and items_per_page else 0
         limit = items_per_page if items_per_page else 0
@@ -472,17 +462,20 @@ class DataManager:
             print(f"An error occurred: {e}")
             return []
 
-    def _highlight_keywords(self, text, search_term, highlight_tag):
-        if isinstance(search_term, list):
-            for term in search_term:
-                text = re.sub(re.escape(term), f'{highlight_tag}\\0{highlight_tag[1:]}', text, flags=re.IGNORECASE)
-        else:
-            text = re.sub(re.escape(search_term), f'{highlight_tag}\\0{highlight_tag[1:]}', text, flags=re.IGNORECASE)
+    def _highlight_keywords(self, text, search_terms, highlight_tag):
+        for term in search_terms:
+            text = re.sub(re.escape(term), f'{highlight_tag}\\0{highlight_tag[1:]}', text, flags=re.IGNORECASE)
         return text
 
-
-    def customsortingoptions(self, query=None, custom_sort=None):
-        cache_key = self._generate_cache_key(query, custom_sort)
+    def customsortingoptions(
+            self,
+            query=None,
+            custom_sort=None,
+            data_types=None,
+            custom_sort_functions=None,
+            null_handling='last'
+    ):
+        cache_key = self._generate_cache_key(query, custom_sort, data_types, custom_sort_functions, null_handling)
         cached_result = self._get_from_cache(cache_key)
 
         if cached_result:
@@ -493,13 +486,10 @@ class DataManager:
             query = {}
 
         sort = []
-
         if custom_sort:
             for field, order in custom_sort:
-                if order.lower() == 'asc':
-                    sort.append((field, ASCENDING))
-                elif order.lower() == 'desc':
-                    sort.append((field, DESCENDING))
+                if order.lower() in {'asc', 'desc'}:
+                    sort.append((field, ASCENDING if order.lower() == 'asc' else DESCENDING))
                 elif order.lower() == 'lenasc':
                     sort.append((field, ASCENDING))
                 elif order.lower() == 'lendesc':
@@ -517,13 +507,24 @@ class DataManager:
 
             results = list(cursor)
 
-            for field, order in custom_sort:
-                if order.lower() == 'lenasc':
-                    results.sort(key=lambda x: len(str(x.get(field, ""))))
-                elif order.lower() == 'lendesc':
-                    results.sort(key=lambda x: len(str(x.get(field, ""))), reverse=True)
-                elif order.lower() == 'custom':
-                    results.sort(key=lambda x: x.get(field, 0))
+            if custom_sort_functions:
+                for field, func in custom_sort_functions.items():
+                    if callable(func):
+                        results.sort(key=lambda x: func(x.get(field, None)))
+                    else:
+                        raise ValueError(f"Custom sort function for field {field} is not callable.")
+
+            if data_types:
+                for field, data_type in data_types.items():
+                    if data_type == 'number':
+                        results.sort(key=lambda x: float(x.get(field, 0)) if x.get(field) is not None else float('-inf' if null_handling == 'first' else 'inf'))
+                    elif data_type == 'date':
+                        results.sort(key=lambda x: x.get(field, '') if x.get(field) is not None else '')
+                    else:
+                        raise ValueError(f"Unsupported data type for field {field}: {data_type}")
+
+            if null_handling == 'first':
+                results.sort(key=lambda x: x.get(field, None) is not None)
 
             encoded_results = json.loads(JSONEncoder().encode(results))
             self._set_to_cache(cache_key, encoded_results)
@@ -531,7 +532,6 @@ class DataManager:
             print(self.get_cache_statistics())
             return encoded_results
 
-        except Exception as e:
+        except PyMongoError as e:
             print(f"An error occurred: {e}")
             return []
-

@@ -198,3 +198,111 @@
 2024-07-28 11:24:49,073 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2024 11:24:49] "POST /filtermanager/auth/login HTTP/1.1" 200 -
 2024-07-28 11:25:03,734 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2024 11:25:03] "GET /filtermanager/auth/export_data HTTP/1.1" 200 -
 2024-07-28 11:25:03,734 - werkzeug - INFO - 127.0.0.1 - - [28/Jul/2024 11:25:03] "GET /filtermanager/auth/export_data HTTP/1.1" 200 -
+2024-07-29 12:40:17,954 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-29 12:40:17,954 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-29 12:40:17,955 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-29 12:40:17,955 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-29 12:43:29,082 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:29] "[31m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 400 -
+2024-07-29 12:43:29,082 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:29] "[31m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 400 -
+2024-07-29 12:43:36,459 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:36] "[35m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 201 -
+2024-07-29 12:43:36,459 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:36] "[35m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 201 -
+2024-07-29 12:43:46,503 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:46] "GET /filtermanager/auth/verify/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjIyNDk4MTUsInVzZXJfaWQiOiJjNDBmNzk1NC05ZmM0LTQxNmItOWZiYS03NDVhYjAyOWEwZjEifQ.EHpX4fpQsfa_3jXJN0eQ1-OsvlEBINC4w1SrI3Tx77A HTTP/1.1" 200 -
+2024-07-29 12:43:46,503 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:46] "GET /filtermanager/auth/verify/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjIyNDk4MTUsInVzZXJfaWQiOiJjNDBmNzk1NC05ZmM0LTQxNmItOWZiYS03NDVhYjAyOWEwZjEifQ.EHpX4fpQsfa_3jXJN0eQ1-OsvlEBINC4w1SrI3Tx77A HTTP/1.1" 200 -
+2024-07-29 12:43:46,655 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:46] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-07-29 12:43:46,655 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:46] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-07-29 12:43:56,200 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:56] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-29 12:43:56,200 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:43:56] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-29 12:44:09,735 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:44:09] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 403 -
+2024-07-29 12:44:09,735 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:44:09] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 403 -
+2024-07-29 12:44:18,638 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:44:18] "GET /filtermanager/auth/export_data HTTP/1.1" 200 -
+2024-07-29 12:44:18,638 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:44:18] "GET /filtermanager/auth/export_data HTTP/1.1" 200 -
+2024-07-29 12:45:29,713 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:45:29] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:45:29,713 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:45:29] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:46:22,628 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:46:22] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:46:22,628 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:46:22] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:46:44,053 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:46:44] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:46:44,053 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:46:44] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:46:49,458 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:46:49] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:46:49,458 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:46:49] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:52:43,302 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:52:43] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 401 -
+2024-07-29 12:52:43,302 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:52:43] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 401 -
+2024-07-29 12:52:49,869 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:52:49] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-29 12:52:49,869 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:52:49] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-29 12:53:10,351 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:53:10] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:53:10,351 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:53:10] "[31m[1mGET /filtermanager/admin/activity_report HTTP/1.1[0m" 400 -
+2024-07-29 12:53:55,985 - app - ERROR - Exception on /filtermanager/admin/activity_report [GET]
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\authentication\permissionsmanager\permissions.py", line 30, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\adminsystem\adminapi.py", line 55, in generate_report
+    return send_file(
+           ^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\helpers.py", line 499, in send_file
+    return werkzeug.utils.send_file(  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\werkzeug\utils.py", line 484, in send_file
+    raise ValueError("Files must be opened in binary mode or use BytesIO.")
+ValueError: Files must be opened in binary mode or use BytesIO.
+------------------------------------------------------------
+2024-07-29 12:53:55,985 - app - ERROR - Exception on /filtermanager/admin/activity_report [GET]
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\authentication\permissionsmanager\permissions.py", line 30, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\adminsystem\adminapi.py", line 55, in generate_report
+    return send_file(
+           ^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\helpers.py", line 499, in send_file
+    return werkzeug.utils.send_file(  # type: ignore[return-value]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\werkzeug\utils.py", line 484, in send_file
+    raise ValueError("Files must be opened in binary mode or use BytesIO.")
+ValueError: Files must be opened in binary mode or use BytesIO.
+------------------------------------------------------------
+2024-07-29 12:53:55,998 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:53:55] "[35m[1mGET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-29 HTTP/1.1[0m" 500 -
+2024-07-29 12:53:55,998 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:53:55] "[35m[1mGET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-29 HTTP/1.1[0m" 500 -
+2024-07-29 12:54:45,247 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-29 12:54:45,247 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-29 12:54:45,248 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-29 12:54:45,248 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-29 12:54:47,662 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:54:47] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-29 12:54:47,662 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:54:47] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-29 12:55:06,245 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:55:06] "GET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-29 HTTP/1.1" 200 -
+2024-07-29 12:55:06,245 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:55:06] "GET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-29 HTTP/1.1" 200 -
+2024-07-29 12:56:52,520 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:56:52] "GET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-29 HTTP/1.1" 200 -
+2024-07-29 12:56:52,520 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:56:52] "GET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-29 HTTP/1.1" 200 -
+2024-07-29 12:58:04,432 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:58:04] "GET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-30 HTTP/1.1" 200 -
+2024-07-29 12:58:04,432 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:58:04] "GET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-30 HTTP/1.1" 200 -
+2024-07-29 12:58:12,739 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:58:12] "GET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-29 HTTP/1.1" 200 -
+2024-07-29 12:58:12,739 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:58:12] "GET /filtermanager/admin/activity_report?start_date=2024-07-28&end_date=2024-07-29 HTTP/1.1" 200 -
+2024-07-29 12:58:19,484 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:58:19] "GET /filtermanager/admin/activity_report?start_date=2024-07-27&end_date=2024-07-30 HTTP/1.1" 200 -
+2024-07-29 12:58:19,484 - werkzeug - INFO - 127.0.0.1 - - [29/Jul/2024 12:58:19] "GET /filtermanager/admin/activity_report?start_date=2024-07-27&end_date=2024-07-30 HTTP/1.1" 200 -

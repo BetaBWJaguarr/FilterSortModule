@@ -129,3 +129,54 @@ def complex_query_request(data, cond):
         return {"error": str(e)}, 400
     except Exception as e:
         return {"error": str(e)}, 500
+
+def fuzzysearchrequest(data, search_field, search_term, filter_data=None, projection=None, sort_data=None, page=None, items_per_page=None, case_sensitive=False, highlight_field=None, phrase_matching=False, boost_fields=None):
+    data_manager = get_data_manager(data)
+    try:
+        results = data_manager.fuzzysearch(
+            search_field,
+            search_term,
+            filter_data=filter_data,
+            projection=projection,
+            sort_data=sort_data,
+            page=page,
+            items_per_page=items_per_page,
+            case_sensitive=case_sensitive,
+            highlight_field=highlight_field,
+            phrase_matching=phrase_matching,
+            boost_fields=boost_fields
+        )
+        return results
+    except CustomValueError as e:
+        return {"error": str(e)}, 400
+
+def keywordhighlightingrequest(data, search_field, search_term, filter_data=None, projection=None, sort_data=None, page=None, items_per_page=None, highlight_tag='<mark>'):
+    data_manager = get_data_manager(data)
+    try:
+        results = data_manager.keywordhighlighting(
+            search_field,
+            search_term,
+            filter_data=filter_data,
+            projection=projection,
+            sort_data=sort_data,
+            page=page,
+            items_per_page=items_per_page,
+            highlight_tag=highlight_tag
+        )
+        return results
+    except CustomValueError as e:
+        return {"error": str(e)}, 400
+
+def customsortingoptionsrequest(data, query=None, custom_sort=None, data_types=None, custom_sort_functions=None, null_handling='last'):
+    data_manager = get_data_manager(data)
+    try:
+        results = data_manager.customsortingoptions(
+            query=query,
+            custom_sort=custom_sort,
+            data_types=data_types,
+            custom_sort_functions=custom_sort_functions,
+            null_handling=null_handling
+        )
+        return results
+    except CustomValueError as e:
+        return {"error": str(e)}, 400

@@ -1,7 +1,7 @@
 from flask import request, jsonify, Blueprint
 from pymongo import MongoClient
 import configparser
-from filtermanager.managers.manager import match_request, sort_request, multi_filter_request, aggregate_request, type_search_request, high_level_query_request,searching_boolean_request,complex_query_request
+from filtermanager.managers.manager import match_request, sort_request, multi_filter_request, aggregate_request, type_search_request, high_level_query_request,searching_boolean_request,complex_query_request,keywordhighlightingrequest,customsortingoptionsrequest
 from anonymizer.dataanonymizer import Anonymizer
 from errorhandling.errormanager import CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError
 from errorhandling.errormanager import setup_logging
@@ -373,3 +373,147 @@ def complex_query():
     except Exception as e:
         logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
+@app.route('/filtermanager/fuzzysearch', methods=['POST'])
+@login_required
+@permission_required('user_api_use')
+@limiter.limit("5 per minute")
+def fuzzysearch():
+    try:
+        data = request.get_json()
+        connection_string = data.get('connection_string')
+        db_name = data.get('db_name')
+        collection_name = data.get('collection_name')
+        search_field = data.get('search_field')
+        search_value = data.get('search_value')
+        filter_data = data.get('filter_data', None)
+        projection = data.get('projection', None)
+        sort_data = data.get('sort_data', None)
+        page = data.get('page', None)
+        items_per_page = data.get('items_per_page', None)
+        case_sensitive = data.get('case_sensitive', False)
+        highlight_field = data.get('highlight_field', None)
+        phrase_matching = data.get('phrase_matching', False)
+        boost_fields = data.get('boost_fields', None)
+
+        valid_keys = {'search_field', 'search_value'}
+        if not set(data.keys()).issubset(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields'})):
+            invalid_keys = set(data.keys()) - valid_keys
+            raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields'}))}.")
+
+        results = fuzzysearchrequest(
+            data,
+            search_field,
+            search_value,
+            filter_data=filter_data,
+            projection=projection,
+            sort_data=sort_data,
+            page=page,
+            items_per_page=items_per_page,
+            case_sensitive=case_sensitive,
+            highlight_field=highlight_field,
+            phrase_matching=phrase_matching,
+            boost_fields=boost_fields
+        )
+
+        anonymizer = Anonymizer(connection_string, db_name, collection_name)
+        results = anonymize_results(results, anonymizer)
+
+        return jsonify(results)
+
+    except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e), "details": e.details}), 400
+    except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
+@app.route('/filtermanager/keywordhighlighting', methods=['POST'])
+@login_required
+@permission_required('user_api_use')
+@limiter.limit("5 per minute")
+def keywordhighlighting():
+    try:
+        data = request.get_json()
+        connection_string = data.get('connection_string')
+        db_name = data.get('db_name')
+        collection_name = data.get('collection_name')
+        search_field = data.get('search_field')
+        keywords = data.get('keywords', [])
+        filter_data = data.get('filter_data', None)
+        projection = data.get('projection', None)
+        sort_data = data.get('sort_data', None)
+        page = data.get('page', None)
+        items_per_page = data.get('items_per_page', None)
+        highlight_tag = data.get('highlight_tag', '<mark>')
+
+        valid_keys = {'search_field', 'keywords'}
+        if not set(data.keys()).issubset(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'highlight_tag'})):
+            invalid_keys = set(data.keys()) - valid_keys
+            raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'highlight_tag'}))}.")
+
+        results = keywordhighlightingrequest(
+            data,
+            search_field,
+            keywords,
+            filter_data=filter_data,
+            projection=projection,
+            sort_data=sort_data,
+            page=page,
+            items_per_page=items_per_page,
+            highlight_tag=highlight_tag
+        )
+
+        return jsonify(results)
+
+    except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e), "details": e.details}), 400
+    except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
+@app.route('/filtermanager/customsortingoptions', methods=['POST'])
+@login_required
+@permission_required('user_api_use')
+@limiter.limit("5 per minute")
+def customsortingoptions():
+    try:
+        data = request.get_json()
+        connection_string = data.get('connection_string')
+        db_name = data.get('db_name')
+        collection_name = data.get('collection_name')
+        sort_options = data.get('sort_options', {})
+        query = data.get('query', None)
+        custom_sort = data.get('custom_sort', None)
+        data_types = data.get('data_types', None)
+        custom_sort_functions = data.get('custom_sort_functions', None)
+        null_handling = data.get('null_handling', 'last')
+
+        valid_keys = {'sort_options', 'query', 'custom_sort', 'data_types', 'custom_sort_functions', 'null_handling'}
+        if not set(data.keys()).issubset(valid_keys):
+            invalid_keys = set(data.keys()) - valid_keys
+            raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
+
+        results = customsortingoptionsrequest(
+            data,
+            query=query,
+            custom_sort=sort_options,
+            data_types=data_types,
+            custom_sort_functions=custom_sort_functions,
+            null_handling=null_handling
+        )
+
+
+        anonymizer = Anonymizer(connection_string, db_name, collection_name)
+        results = anonymize_results(results, anonymizer)
+
+        return jsonify(results)
+
+    except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
+        logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": str(e), "details": e.details}), 400
+    except Exception as e:
+        logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500
+
