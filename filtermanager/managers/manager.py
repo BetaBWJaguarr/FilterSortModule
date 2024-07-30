@@ -167,7 +167,17 @@ def keywordhighlightingrequest(data, search_field, search_term, filter_data=None
     except CustomValueError as e:
         return {"error": str(e)}, 400
 
-def customsortingoptionsrequest(data, query=None, custom_sort=None, data_types=None, custom_sort_functions=None, null_handling='last'):
+def customsortingoptionsrequest(
+        data,
+        query=None,
+        custom_sort=None,
+        data_types=None,
+        custom_sort_functions=None,
+        null_handling='last',
+        offset=None,
+        limit=None,
+        fields=None
+):
     data_manager = get_data_manager(data)
     try:
         results = data_manager.customsortingoptions(
@@ -175,7 +185,10 @@ def customsortingoptionsrequest(data, query=None, custom_sort=None, data_types=N
             custom_sort=custom_sort,
             data_types=data_types,
             custom_sort_functions=custom_sort_functions,
-            null_handling=null_handling
+            null_handling=null_handling,
+            offset=offset,
+            limit=limit,
+            fields=fields
         )
         return results
     except CustomValueError as e:

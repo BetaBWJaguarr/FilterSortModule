@@ -489,8 +489,11 @@ def customsortingoptions():
         data_types = data.get('data_types', None)
         custom_sort_functions = data.get('custom_sort_functions', None)
         null_handling = data.get('null_handling', 'last')
+        offset = data.get('offset', None)
+        limit = data.get('limit', None)
+        fields = data.get('fields', None)
 
-        valid_keys = {'sort_options', 'query', 'custom_sort', 'data_types', 'custom_sort_functions', 'null_handling'}
+        valid_keys = {'sort_options', 'query', 'custom_sort', 'data_types', 'custom_sort_functions', 'null_handling', 'offset', 'limit', 'fields'}
         if not set(data.keys()).issubset(valid_keys):
             invalid_keys = set(data.keys()) - valid_keys
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
@@ -501,9 +504,11 @@ def customsortingoptions():
             custom_sort=sort_options,
             data_types=data_types,
             custom_sort_functions=custom_sort_functions,
-            null_handling=null_handling
+            null_handling=null_handling,
+            offset=offset,
+            limit=limit,
+            fields=fields
         )
-
 
         anonymizer = Anonymizer(connection_string, db_name, collection_name)
         results = anonymize_results(results, anonymizer)

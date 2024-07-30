@@ -5,6 +5,8 @@ from pymongo import errors
 from io import BytesIO
 from authentication.shared import admin_logs
 from authentication.permissionsmanager.permissions import permission_required
+from authentication.shared import users_collection
+
 
 admin_api = Blueprint('admin_api', __name__)
 
@@ -62,3 +64,30 @@ def generate_report():
         return jsonify({"error": "Database error. Please try again later."}), 500
     except Exception as e:
         return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
+@admin_api.route('/filtermanager/admin/user_update/<user_id>', methods=['POST'])
+@permission_required('admin_api_use')
+def update_user_role(user_id):
+    try:
+        data = request.get_json()
+        new_role = data.get('role')
+
+        if not new_role:
+            return jsonify({"error": "Role must be provided"}), 400
+
+
+        result = users_collection.update_one(
+            {"_id": user_id},
+            {"$set": {"role": new_role}}
+        )
+
+        if result.modified_count > 0:
+            return jsonify({"message": "User role updated successfully"}), 200
+        else:
+            return jsonify({"error": "User not found or role is the same"}), 404
+
+    except errors.PyMongoError as e:
+        return jsonify({"error": "Database error. Please try again later."}), 500
+    except Exception as e:
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+

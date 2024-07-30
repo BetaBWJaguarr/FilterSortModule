@@ -1,3 +1,4 @@
+import hashlib
 import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
@@ -21,3 +22,7 @@ def send_email(subject, recipient, body):
     except Exception as e:
         print(f"Error sending email: {e}")
     return False
+
+def anonymize_email(email):
+    hashed_email = hashlib.sha256(email.encode('utf-8')).hexdigest()
+    return hashed_email

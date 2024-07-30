@@ -5,7 +5,7 @@ from flask_limiter import Limiter
 from pymongo import errors
 import uuid
 from werkzeug.security import check_password_hash, generate_password_hash
-from authentication.emailmanager.emailmanager import send_email
+from authentication.emailmanager.emailmanager import send_email, anonymize_email
 from authentication.permissionsmanager.permissions import permission_required
 from authentication.tokenmanager.tokenmanager import verify_token, generate_token
 from users.userobjects import User
@@ -66,12 +66,20 @@ def register():
         email = data.get('email')
         password = data.get('password')
         role = 'user'
+        consent = data.get('consent')
+        anonymize = data.get('anonymize', False)
+
+        if consent is not True:
+            return jsonify({"error": "Consent is required for registration."}), 400
 
         if not username or not email or not password:
             return jsonify({"error": "Missing required fields"}), 400
 
         if not password_complexity_check(password):
             return jsonify({"error": PASSWORD_COMPLEXITY_MSG}), 400
+
+        if anonymize:
+            email = anonymize_email(email)
 
         if users_collection.find_one({"email": email}):
             return jsonify({"error": "User already exists"}), 400
@@ -357,6 +365,21 @@ def export_data():
         )
 
         return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
+#Users Rights
+@auth.route('/filtermanager/auth/user_rights', methods=['GET'])
+@login_required
+def user_rights():
+    return jsonify({
+        "rights": [
+            "Right to access personal data",
+            "Right to rectify inaccurate data",
+            "Right to erasure of data",
+            "Right to restrict processing",
+            "Right to data portability",
+            "Right to object to processing"
+        ]
+    }), 200
 
 #Backend Auth Manager
 @auth.route('/filtermanager/auth/verify/<token>', methods=['GET'])

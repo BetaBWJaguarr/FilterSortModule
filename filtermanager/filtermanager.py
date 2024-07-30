@@ -473,9 +473,12 @@ class DataManager:
             custom_sort=None,
             data_types=None,
             custom_sort_functions=None,
-            null_handling='last'
+            null_handling='last',
+            offset=None,
+            limit=None,
+            fields=None
     ):
-        cache_key = self._generate_cache_key(query, custom_sort, data_types, custom_sort_functions, null_handling)
+        cache_key = self._generate_cache_key(query, custom_sort, data_types, custom_sort_functions, null_handling, offset, limit, fields)
         cached_result = self._get_from_cache(cache_key)
 
         if cached_result:
@@ -500,10 +503,13 @@ class DataManager:
                     raise ValueError(f"Invalid sort order: {order}. Use 'asc', 'desc', 'lenasc', 'lendesc', or 'custom'.")
 
         try:
-            cursor = self.collection.find(query)
+            cursor = self.collection.find(query, projection=fields if fields else None)
 
             if sort:
                 cursor = cursor.sort(sort)
+
+            if offset is not None and limit is not None:
+                cursor = cursor.skip(offset).limit(limit)
 
             results = list(cursor)
 

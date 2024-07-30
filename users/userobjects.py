@@ -18,5 +18,6 @@ class User:
             "password": self.password,
             "role": self.role,
             "is_verified": self.is_verified,
+            "constent": True
         }
 
