@@ -336,3 +336,231 @@ ValueError: Files must be opened in binary mode or use BytesIO.
 2024-07-30 12:14:13,916 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2024 12:14:13] "[31m[1mGET /filtermanager/admin/activity_report?start_date=2024-07-27&end_date=2024-07-30 HTTP/1.1[0m" 401 -
 2024-07-30 12:14:24,574 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2024 12:14:24] "[31m[1mGET /filtermanager/admin/activity_report?start_date=2024-07-27&end_date=2024-07-30 HTTP/1.1[0m" 403 -
 2024-07-30 12:14:24,574 - werkzeug - INFO - 127.0.0.1 - - [30/Jul/2024 12:14:24] "[31m[1mGET /filtermanager/admin/activity_report?start_date=2024-07-27&end_date=2024-07-30 HTTP/1.1[0m" 403 -
+2024-07-31 12:28:14,517 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-31 12:28:14,517 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-31 12:28:14,518 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-31 12:28:14,518 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-31 12:28:31,775 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:28:31] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-31 12:28:31,775 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:28:31] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-31 12:28:41,442 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: keywords, sort_data, highlight_tag, collection_name, db_name, connection_string, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:28:41 2024
+Traceback:
+NoneType: None
+NoneType: None
+------------------------------------------------------------
+2024-07-31 12:28:41,442 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: keywords, sort_data, highlight_tag, collection_name, db_name, connection_string, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:28:41 2024
+Traceback:
+NoneType: None
+NoneType: None
+------------------------------------------------------------
+2024-07-31 12:28:41,443 - root - ERROR - Custom error occurred: Error: Invalid keys: keywords, sort_data, highlight_tag, collection_name, db_name, connection_string, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:28:41 2024
+Traceback:
+NoneType: None
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 405, in fuzzysearch
+    raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields', 'exclude_fields', 'aggregations', 'timeout'}))}.")
+errorhandling.errormanager.CustomValueError: Error: Invalid keys: keywords, sort_data, highlight_tag, collection_name, db_name, connection_string, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:28:41 2024
+Traceback:
+NoneType: None
+
+------------------------------------------------------------
+2024-07-31 12:28:41,443 - root - ERROR - Custom error occurred: Error: Invalid keys: keywords, sort_data, highlight_tag, collection_name, db_name, connection_string, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:28:41 2024
+Traceback:
+NoneType: None
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 405, in fuzzysearch
+    raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields', 'exclude_fields', 'aggregations', 'timeout'}))}.")
+errorhandling.errormanager.CustomValueError: Error: Invalid keys: keywords, sort_data, highlight_tag, collection_name, db_name, connection_string, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:28:41 2024
+Traceback:
+NoneType: None
+
+------------------------------------------------------------
+2024-07-31 12:28:41,445 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:28:41] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 400 -
+2024-07-31 12:28:41,445 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:28:41] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 400 -
+2024-07-31 12:30:33,893 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: sort_data, collection_name, db_name, connection_string, highlight_field, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:30:33 2024
+Traceback:
+NoneType: None
+NoneType: None
+------------------------------------------------------------
+2024-07-31 12:30:33,893 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: sort_data, collection_name, db_name, connection_string, highlight_field, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:30:33 2024
+Traceback:
+NoneType: None
+NoneType: None
+------------------------------------------------------------
+2024-07-31 12:30:33,894 - root - ERROR - Custom error occurred: Error: Invalid keys: sort_data, collection_name, db_name, connection_string, highlight_field, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:30:33 2024
+Traceback:
+NoneType: None
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 405, in fuzzysearch
+    raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields', 'exclude_fields', 'aggregations', 'timeout'}))}.")
+errorhandling.errormanager.CustomValueError: Error: Invalid keys: sort_data, collection_name, db_name, connection_string, highlight_field, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:30:33 2024
+Traceback:
+NoneType: None
+
+------------------------------------------------------------
+2024-07-31 12:30:33,894 - root - ERROR - Custom error occurred: Error: Invalid keys: sort_data, collection_name, db_name, connection_string, highlight_field, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:30:33 2024
+Traceback:
+NoneType: None
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 405, in fuzzysearch
+    raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields', 'exclude_fields', 'aggregations', 'timeout'}))}.")
+errorhandling.errormanager.CustomValueError: Error: Invalid keys: sort_data, collection_name, db_name, connection_string, highlight_field, filter_data, projection, items_per_page, page. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:30:33 2024
+Traceback:
+NoneType: None
+
+------------------------------------------------------------
+2024-07-31 12:30:33,895 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:30:33] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 400 -
+2024-07-31 12:30:33,895 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:30:33] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 400 -
+2024-07-31 12:31:56,471 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: case_sensitive, collection_name, phrase_matching, aggregations, items_per_page, timeout, page, sort_data, connection_string, highlight_field, filter_data, projection, db_name, exclude_fields, boost_fields. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:31:56 2024
+Traceback:
+NoneType: None
+NoneType: None
+------------------------------------------------------------
+2024-07-31 12:31:56,471 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: case_sensitive, collection_name, phrase_matching, aggregations, items_per_page, timeout, page, sort_data, connection_string, highlight_field, filter_data, projection, db_name, exclude_fields, boost_fields. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:31:56 2024
+Traceback:
+NoneType: None
+NoneType: None
+------------------------------------------------------------
+2024-07-31 12:31:56,472 - root - ERROR - Custom error occurred: Error: Invalid keys: case_sensitive, collection_name, phrase_matching, aggregations, items_per_page, timeout, page, sort_data, connection_string, highlight_field, filter_data, projection, db_name, exclude_fields, boost_fields. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:31:56 2024
+Traceback:
+NoneType: None
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 405, in fuzzysearch
+    raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields', 'exclude_fields', 'aggregations', 'timeout'}))}.")
+errorhandling.errormanager.CustomValueError: Error: Invalid keys: case_sensitive, collection_name, phrase_matching, aggregations, items_per_page, timeout, page, sort_data, connection_string, highlight_field, filter_data, projection, db_name, exclude_fields, boost_fields. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:31:56 2024
+Traceback:
+NoneType: None
+
+------------------------------------------------------------
+2024-07-31 12:31:56,472 - root - ERROR - Custom error occurred: Error: Invalid keys: case_sensitive, collection_name, phrase_matching, aggregations, items_per_page, timeout, page, sort_data, connection_string, highlight_field, filter_data, projection, db_name, exclude_fields, boost_fields. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:31:56 2024
+Traceback:
+NoneType: None
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 405, in fuzzysearch
+    raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields', 'exclude_fields', 'aggregations', 'timeout'}))}.")
+errorhandling.errormanager.CustomValueError: Error: Invalid keys: case_sensitive, collection_name, phrase_matching, aggregations, items_per_page, timeout, page, sort_data, connection_string, highlight_field, filter_data, projection, db_name, exclude_fields, boost_fields. Valid keys are: sort_data, search_value, case_sensitive, search_field, highlight_field, filter_data, phrase_matching, timeout, projection, aggregations, items_per_page, exclude_fields, page, boost_fields.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Wed Jul 31 12:31:56 2024
+Traceback:
+NoneType: None
+
+------------------------------------------------------------
+2024-07-31 12:31:56,474 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:31:56] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 400 -
+2024-07-31 12:31:56,474 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:31:56] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 400 -
+2024-07-31 12:34:05,053 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-31 12:34:05,053 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-31 12:34:05,054 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-31 12:34:05,054 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-31 12:34:09,647 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:34:09] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 401 -
+2024-07-31 12:34:09,647 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:34:09] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 401 -
+2024-07-31 12:34:15,915 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:34:15] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-31 12:34:15,915 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:34:15] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-31 12:34:23,164 - root - ERROR - Unexpected error occurred: 'list' object has no attribute 'split'
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 410, in fuzzysearch
+    results = fuzzysearchrequest(
+              ^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\managers\manager.py", line 152, in fuzzysearchrequest
+    results = data_manager.fuzzysearch(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\filtermanager.py", line 369, in fuzzysearch
+    search_term = '.*' + '.*'.join(re.escape(term) for term in search_term.split()) + '.*'
+                                                               ^^^^^^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'split'
+------------------------------------------------------------
+2024-07-31 12:34:23,164 - root - ERROR - Unexpected error occurred: 'list' object has no attribute 'split'
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 410, in fuzzysearch
+    results = fuzzysearchrequest(
+              ^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\managers\manager.py", line 152, in fuzzysearchrequest
+    results = data_manager.fuzzysearch(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\filtermanager.py", line 369, in fuzzysearch
+    search_term = '.*' + '.*'.join(re.escape(term) for term in search_term.split()) + '.*'
+                                                               ^^^^^^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'split'
+------------------------------------------------------------
+2024-07-31 12:34:23,167 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:34:23] "[35m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 500 -
+2024-07-31 12:34:23,167 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:34:23] "[35m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 500 -
+2024-07-31 12:35:27,727 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-31 12:35:27,727 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-07-31 12:35:27,727 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-31 12:35:27,727 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-07-31 12:35:34,570 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:35:34] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 401 -
+2024-07-31 12:35:34,570 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:35:34] "[31m[1mPOST /filtermanager/fuzzysearch HTTP/1.1[0m" 401 -
+2024-07-31 12:35:38,265 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:35:38] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-31 12:35:38,265 - werkzeug - INFO - 127.0.0.1 - - [31/Jul/2024 12:35:38] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-07-31 12:35:47,063 - root - ERROR - Unexpected error occurred: name 're' is not defined
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 410, in fuzzysearch
+    results = fuzzysearchrequest(
+              ^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\managers\manager.py", line 152, in fuzzysearchrequest
+    results = data_manager.fuzzysearch(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\filtermanager.py", line 369, in fuzzysearch
+    query['$or'] = [
+                   ^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\filtermanager.py", line 370, in <listcomp>
+    {field: {"$regex": re.compile(value, flags=regex_flags)}}
+                       ^^
+NameError: name 're' is not defined
+------------------------------------------------------------

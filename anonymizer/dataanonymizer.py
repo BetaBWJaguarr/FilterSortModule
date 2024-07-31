@@ -14,32 +14,38 @@ class Anonymizer:
         self.collection = self.db[collection_name]
         self.faker = Faker()
 
-    def encrypt_field(self, value: str) -> str:
+    def _check_cipher_suite(self):
         if self.cipher_suite is None:
-            raise ValueError("No key provided for encryption")
+            raise ValueError("Encryption key is not provided")
+
+    def encrypt_field(self, value: str) -> str:
+        self._check_cipher_suite()
         encrypted_value = self.cipher_suite.encrypt(value.encode())
         return encrypted_value.decode()
 
     def decrypt_field(self, value: str) -> str:
-        if self.cipher_suite is None:
-            raise ValueError("No key provided for decryption")
+        self._check_cipher_suite()
         decrypted_value = self.cipher_suite.decrypt(value.encode())
         return decrypted_value.decode()
 
+    def _anonymize_field(self, value: Any, anonymize_func) -> Any:
+        return anonymize_func(value)
+
+    def _anonymize_dict(self, data: Dict[str, Any], fields: List[str], anonymize_func) -> Dict[str, Any]:
+        anonymized_data = data.copy()
+        for field in fields:
+            if isinstance(anonymized_data.get(field), dict):
+                anonymized_data[field] = self._anonymize_dict(anonymized_data[field], anonymized_data[field].keys(), anonymize_func)
+            elif field in anonymized_data:
+                anonymized_data[field] = self._anonymize_field(anonymized_data[field], anonymize_func)
+        return anonymized_data
+
     def anonymize_fields(self, json_data: Dict[str, Any], fields_to_anonymize: List[str], anonymize_func) -> Dict[str, Any]:
+        if not isinstance(json_data, dict):
+            raise TypeError("Input data must be a dictionary")
+
         try:
-            if not isinstance(json_data, dict):
-                raise TypeError("Input data must be a dictionary")
-
-            anonymized_data = json_data.copy()
-            for field in fields_to_anonymize:
-                if isinstance(anonymized_data.get(field), dict):
-                    anonymized_data[field] = self.anonymize_fields(anonymized_data[field], anonymized_data[field].keys(), anonymize_func)
-                elif field in anonymized_data:
-                    anonymized_data[field] = anonymize_func(anonymized_data[field])
-
-            return anonymized_data
-
+            return self._anonymize_dict(json_data, fields_to_anonymize, anonymize_func)
         except Exception as e:
             traceback.print_exc()
             raise CustomValueError("Anonymization error", str(e))
@@ -61,13 +67,8 @@ class Anonymizer:
         return document
 
     def anonymize_sensitive_fields(self, document: Dict[str, Any]) -> Dict[str, Any]:
-        try:
-            if not isinstance(document, dict):
-                raise TypeError("Input document must be a dictionary")
+        if not isinstance(document, dict):
+            raise TypeError("Input document must be a dictionary")
 
-            sensitive_fields = ["email", "password", "username"]
-            return self.anonymize_fields(document, sensitive_fields, lambda x: "********")
-
-        except Exception as e:
-            traceback.print_exc()
-            raise CustomValueError("Anonymization error", str(e))
+        sensitive_fields = ["email", "password", "username"]
+        return self.anonymize_fields(document, sensitive_fields, lambda x: "********")

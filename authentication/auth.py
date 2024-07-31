@@ -68,6 +68,8 @@ def register():
         role = 'user'
         consent = data.get('consent')
         anonymize = data.get('anonymize', False)
+        security_question = data.get('security_question')
+        security_answer = data.get('security_answer')
 
         if consent is not True:
             return jsonify({"error": "Consent is required for registration."}), 400
@@ -78,13 +80,17 @@ def register():
         if not password_complexity_check(password):
             return jsonify({"error": PASSWORD_COMPLEXITY_MSG}), 400
 
+        if not security_question or not security_answer:
+            return jsonify({"error": "Security question and answer are required."}), 400
+
         if anonymize:
             email = anonymize_email(email)
 
         if users_collection.find_one({"email": email}):
             return jsonify({"error": "User already exists"}), 400
 
-        user = User(username, email, password, role=role)
+        hashed_password = generate_password_hash(password)
+        user = User(username, email, hashed_password, role=role, security_question=security_question, security_answer=security_answer)
         users_collection.insert_one(user.to_dict())
 
         token = generate_token({'user_id': user.id}, expiration_minutes=60)
@@ -110,6 +116,8 @@ def login():
         data = request.get_json()
         email = data.get('email')
         password = data.get('password')
+        security_question = data.get('security_question')
+        security_answer = data.get('security_answer')
 
         if email in failed_login_attempts:
             failed_attempt = failed_login_attempts[email]
@@ -126,6 +134,27 @@ def login():
                 return jsonify({"error": "Email not verified. Please verify your email before logging in."}), 401
 
             if check_password_hash(user_data['password'], password):
+                if security_question and security_answer:
+                    if (
+                            user_data.get('security_question') == security_question and
+                            check_password_hash(user_data['security_answer'], security_answer)
+                    ):
+                        session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
+                        sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
+                        if email in failed_login_attempts:
+                            del failed_login_attempts[email]
+
+                        log_admin_activity(
+                            action="User logged in",
+                            details=f"User with email: {email} logged in.",
+                            status="success",
+                            metadata={"email": email, "user_id": user_data['_id']}
+                        )
+
+                        return jsonify({"message": "Login successful", "session_id": session_id}), 200
+                    else:
+                        return jsonify({"error": "Invalid security question or answer"}), 401
+
                 session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
                 sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
                 if email in failed_login_attempts:
@@ -192,22 +221,33 @@ def reset_password():
     try:
         data = request.get_json()
         email = data.get('email')
+        security_question = data.get('security_question')
+        security_answer = data.get('security_answer')
+
+        if not email or not security_question or not security_answer:
+            return jsonify({"error": "Email, security question, and answer are required."}), 400
 
         user_data = users_collection.find_one({"email": email})
 
         if user_data:
-            token = generate_token({'email': email}, expiration_minutes=15)
-            reset_link = f"http://127.0.0.1:5000/filtermanager/auth/update_password/{token}"
-            send_email("Reset your password", email, f"Click here to reset your password: {reset_link}")
+            if (
+                    user_data.get('security_question') == security_question and
+                    check_password_hash(user_data['security_answer'], security_answer)
+            ):
+                token = generate_token({'email': email}, expiration_minutes=15)
+                reset_link = f"http://127.0.0.1:5000/filtermanager/auth/update_password/{token}"
+                send_email("Reset your password", email, f"Click here to reset your password: {reset_link}")
 
-            log_admin_activity(
-                action="Password reset requested",
-                details=f"Password reset requested for email: {email}",
-                status="success",
-                metadata={"email": email}
-            )
+                log_admin_activity(
+                    action="Password reset requested",
+                    details=f"Password reset requested for email: {email}",
+                    status="success",
+                    metadata={"email": email}
+                )
 
-            return jsonify({"message": "Password reset email sent"}), 200
+                return jsonify({"message": "Password reset email sent"}), 200
+            else:
+                return jsonify({"error": "Invalid security question or answer"}), 400
 
         return jsonify({"error": "Email not found"}), 404
     except errors.PyMongoError as e:

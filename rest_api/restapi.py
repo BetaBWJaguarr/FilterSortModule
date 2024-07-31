@@ -1,7 +1,7 @@
 from flask import request, jsonify, Blueprint
 from pymongo import MongoClient
 import configparser
-from filtermanager.managers.manager import match_request, sort_request, multi_filter_request, aggregate_request, type_search_request, high_level_query_request,searching_boolean_request,complex_query_request,keywordhighlightingrequest,customsortingoptionsrequest
+from filtermanager.managers.manager import match_request, sort_request, multi_filter_request, aggregate_request, type_search_request, high_level_query_request,searching_boolean_request,complex_query_request,keywordhighlightingrequest,customsortingoptionsrequest,fuzzysearchrequest
 from anonymizer.dataanonymizer import Anonymizer
 from errorhandling.errormanager import CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError
 from errorhandling.errormanager import setup_logging
@@ -381,6 +381,13 @@ def complex_query():
 def fuzzysearch():
     try:
         data = request.get_json()
+        valid_keys = {'connection_string', 'db_name', 'collection_name', 'search_field', 'search_value', 'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields', 'exclude_fields', 'aggregations', 'timeout'}
+
+        if not set(data.keys()).issubset(valid_keys):
+            invalid_keys = set(data.keys()) - valid_keys
+            raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
+
+
         connection_string = data.get('connection_string')
         db_name = data.get('db_name')
         collection_name = data.get('collection_name')
@@ -395,11 +402,10 @@ def fuzzysearch():
         highlight_field = data.get('highlight_field', None)
         phrase_matching = data.get('phrase_matching', False)
         boost_fields = data.get('boost_fields', None)
+        exclude_fields = data.get('exclude_fields', None)
+        aggregations = data.get('aggregations', None)
+        timeout = data.get('timeout', 5000)
 
-        valid_keys = {'search_field', 'search_value'}
-        if not set(data.keys()).issubset(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields'})):
-            invalid_keys = set(data.keys()) - valid_keys
-            raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'case_sensitive', 'highlight_field', 'phrase_matching', 'boost_fields'}))}.")
 
         results = fuzzysearchrequest(
             data,
@@ -413,7 +419,10 @@ def fuzzysearch():
             case_sensitive=case_sensitive,
             highlight_field=highlight_field,
             phrase_matching=phrase_matching,
-            boost_fields=boost_fields
+            boost_fields=boost_fields,
+            exclude_fields=exclude_fields,
+            aggregations=aggregations,
+            timeout=timeout
         )
 
         anonymizer = Anonymizer(connection_string, db_name, collection_name)
@@ -423,7 +432,7 @@ def fuzzysearch():
 
     except (CustomValueError, CustomTypeError, CustomIndexError, CustomKeyError, CustomFileNotFoundError) as e:
         logger.error(f"Custom error occurred: {str(e)}", exc_info=True)
-        return jsonify({"error": str(e), "details": e.details}), 400
+        return jsonify({"error": str(e), "details": getattr(e, 'details', 'No additional details')}), 400
     except Exception as e:
         logger.error(f"Unexpected error occurred: {str(e)}", exc_info=True)
         return jsonify({"error": "An unexpected error occurred", "details": str(e)}), 500

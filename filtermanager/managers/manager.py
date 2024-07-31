@@ -130,7 +130,23 @@ def complex_query_request(data, cond):
     except Exception as e:
         return {"error": str(e)}, 500
 
-def fuzzysearchrequest(data, search_field, search_term, filter_data=None, projection=None, sort_data=None, page=None, items_per_page=None, case_sensitive=False, highlight_field=None, phrase_matching=False, boost_fields=None):
+def fuzzysearchrequest(
+        data,
+        search_field,
+        search_term,
+        filter_data=None,
+        projection=None,
+        sort_data=None,
+        page=None,
+        items_per_page=None,
+        case_sensitive=False,
+        highlight_field=None,
+        phrase_matching=False,
+        boost_fields=None,
+        exclude_fields=None,
+        aggregations=None,
+        timeout=5000
+):
     data_manager = get_data_manager(data)
     try:
         results = data_manager.fuzzysearch(
@@ -144,7 +160,10 @@ def fuzzysearchrequest(data, search_field, search_term, filter_data=None, projec
             case_sensitive=case_sensitive,
             highlight_field=highlight_field,
             phrase_matching=phrase_matching,
-            boost_fields=boost_fields
+            boost_fields=boost_fields,
+            exclude_fields=exclude_fields,
+            aggregations=aggregations,
+            timeout=timeout
         )
         return results
     except CustomValueError as e:
