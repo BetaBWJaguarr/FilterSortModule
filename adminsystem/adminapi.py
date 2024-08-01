@@ -67,24 +67,30 @@ def generate_report():
 
 @admin_api.route('/filtermanager/admin/user_update/<user_id>', methods=['POST'])
 @permission_required('admin_api_use')
-def update_user_role(user_id):
+def update_user_details(user_id):
     try:
         data = request.get_json()
-        new_role = data.get('role')
+        new_email = data.get('email')
+        new_username = data.get('username')
 
-        if not new_role:
-            return jsonify({"error": "Role must be provided"}), 400
+        if not new_email and not new_username:
+            return jsonify({"error": "At least one of email or username must be provided"}), 400
 
+        update_fields = {}
+        if new_email:
+            update_fields["email"] = new_email
+        if new_username:
+            update_fields["username"] = new_username
 
         result = users_collection.update_one(
             {"_id": user_id},
-            {"$set": {"role": new_role}}
+            {"$set": update_fields}
         )
 
         if result.modified_count > 0:
-            return jsonify({"message": "User role updated successfully"}), 200
+            return jsonify({"message": "User details updated successfully"}), 200
         else:
-            return jsonify({"error": "User not found or role is the same"}), 404
+            return jsonify({"error": "User not found or details are the same"}), 404
 
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500

@@ -20,25 +20,23 @@ class Anonymizer:
 
     def encrypt_field(self, value: str) -> str:
         self._check_cipher_suite()
-        encrypted_value = self.cipher_suite.encrypt(value.encode())
-        return encrypted_value.decode()
+        return self.cipher_suite.encrypt(value.encode()).decode()
 
     def decrypt_field(self, value: str) -> str:
         self._check_cipher_suite()
-        decrypted_value = self.cipher_suite.decrypt(value.encode())
-        return decrypted_value.decode()
+        return self.cipher_suite.decrypt(value.encode()).decode()
 
     def _anonymize_field(self, value: Any, anonymize_func) -> Any:
         return anonymize_func(value)
 
     def _anonymize_dict(self, data: Dict[str, Any], fields: List[str], anonymize_func) -> Dict[str, Any]:
-        anonymized_data = data.copy()
+        anonymized = data.copy()
         for field in fields:
-            if isinstance(anonymized_data.get(field), dict):
-                anonymized_data[field] = self._anonymize_dict(anonymized_data[field], anonymized_data[field].keys(), anonymize_func)
-            elif field in anonymized_data:
-                anonymized_data[field] = self._anonymize_field(anonymized_data[field], anonymize_func)
-        return anonymized_data
+            if isinstance(anonymized.get(field), dict):
+                anonymized[field] = self._anonymize_dict(anonymized[field], anonymized[field].keys(), anonymize_func)
+            elif field in anonymized:
+                anonymized[field] = self._anonymize_field(anonymized[field], anonymize_func)
+        return anonymized
 
     def anonymize_fields(self, json_data: Dict[str, Any], fields_to_anonymize: List[str], anonymize_func) -> Dict[str, Any]:
         if not isinstance(json_data, dict):

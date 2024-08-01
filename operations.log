@@ -563,4 +563,48 @@ Traceback (most recent call last):
     {field: {"$regex": re.compile(value, flags=regex_flags)}}
                        ^^
 NameError: name 're' is not defined
+------------------------------------------------------------2024-08-01 15:03:43,110 - werkzeug - INFO - 127.0.0.1 - - [01/Aug/2024 15:03:43] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-01 15:03:43,110 - werkzeug - INFO - 127.0.0.1 - - [01/Aug/2024 15:03:43] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-01 15:03:51,876 - root - ERROR - Unexpected error occurred: first argument must be string or compiled pattern
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 410, in fuzzysearch
+    results = fuzzysearchrequest(
+              ^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\managers\manager.py", line 152, in fuzzysearchrequest
+    results = data_manager.fuzzysearch(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\filtermanager.py", line 391, in fuzzysearch
+    regex = re.compile(search_values, flags=regex_flags)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tuna\AppData\Local\Programs\Python\Python311\Lib\re\__init__.py", line 227, in compile
+    return _compile(pattern, flags)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tuna\AppData\Local\Programs\Python\Python311\Lib\re\__init__.py", line 286, in _compile
+    raise TypeError("first argument must be string or compiled pattern")
+TypeError: first argument must be string or compiled pattern
+------------------------------------------------------------2024-08-01 15:34:15,660 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-01 15:34:15,660 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-01 15:34:15,660 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-01 15:34:15,660 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-01 15:44:03,523 - werkzeug - INFO - 127.0.0.1 - - [01/Aug/2024 15:44:03] "[31m[1mPOST /filtermanager/customsortingoptions HTTP/1.1[0m" 401 -
+2024-08-01 15:44:03,523 - werkzeug - INFO - 127.0.0.1 - - [01/Aug/2024 15:44:03] "[31m[1mPOST /filtermanager/customsortingoptions HTTP/1.1[0m" 401 -
+2024-08-01 15:44:07,375 - werkzeug - INFO - 127.0.0.1 - - [01/Aug/2024 15:44:07] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-01 15:44:07,375 - werkzeug - INFO - 127.0.0.1 - - [01/Aug/2024 15:44:07] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-01 15:44:13,399 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: db_name, collection_name, connection_string. Valid keys are: query, data_types, custom_sort, offset, null_handling, limit, fields, sort_options, custom_sort_functions.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Thu Aug  1 15:44:13 2024
+Traceback:
+NoneType: None
+NoneType: None
+------------------------------------------------------------
+2024-08-01 15:44:13,399 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: db_name, collection_name, connection_string. Valid keys are: query, data_types, custom_sort, offset, null_handling, limit, fields, sort_options, custom_sort_functions.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Thu Aug  1 15:44:13 2024
+Traceback:
+NoneType: None
+NoneType: None
 ------------------------------------------------------------

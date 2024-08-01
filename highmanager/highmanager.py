@@ -1,3 +1,5 @@
+from datetime import time
+
 from pymongo import ASCENDING, DESCENDING, MongoClient
 import json
 
@@ -107,6 +109,13 @@ class HighManager:
 
 
     def build_complex_query(self, cond):
+        cache_key = self._generate_cache_key(cond)
+        cached_result = self._get_from_cache(cache_key)
+
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
         if not isinstance(cond, (dict, list)):
             raise ValueError("Conditions must be either a dictionary or a list.")
 
@@ -160,9 +169,19 @@ class HighManager:
         else:
             return cond
 
-        return query
+        encoded_results = json.loads(JSONEncoder().encode(query))
+        self._set_to_cache(cache_key, encoded_results)
 
-    def utilize_index(self, query=None, sort_data=None):
+        return encoded_results
+
+    def utilize_index(self, query=None, sort_data=None, index_type=ASCENDING):
+        cache_key = self._generate_cache_key(query, sort_data, index_type)
+        cached_result = self._get_from_cache(cache_key)
+
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
         if not query and not sort_data:
             print("No query or sort data provided to optimize indexes.")
             return
@@ -183,22 +202,48 @@ class HighManager:
 
             extract_fields(query)
 
-
         existing_indexes = self.collection.index_information()
         existing_index_keys = {tuple(index['key']): index for index in existing_indexes.values()}
 
-
         index_keys = list(index_keys)
-        new_index_keys = [(key, ASCENDING) for key in index_keys]
+        new_index_keys = [(key, index_type) for key in index_keys]
 
         missing_indexes = [index for index in new_index_keys if index not in existing_index_keys]
 
         if missing_indexes:
             for index in missing_indexes:
+                start_time = time.time()
                 self.collection.create_index(index, background=True)
-                print(f"Created index: {index}")
+                end_time = time.time()
+                print(f"Created index: {index} (Time taken: {end_time - start_time:.2f} seconds)")
         else:
             print("All required indexes are already in place.")
 
-
         print("Index utilization completed.")
+        self._set_to_cache(cache_key, {'status': 'completed'})
+
+        return {'status': 'completed'}
+
+    def list_existing_indexes(self):
+        indexes = self.collection.index_information()
+        encoded_indexes = json.loads(JSONEncoder().encode(indexes))
+        return encoded_indexes
+
+    def drop_index(self, index_name):
+        cache_key = self._generate_cache_key(index_name)
+        cached_result = self._get_from_cache(cache_key)
+
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
+        try:
+            self.collection.drop_index(index_name)
+            result = {'status': 'dropped', 'index_name': index_name}
+            print(f"Dropped index: {index_name}")
+        except Exception as e:
+            result = {'status': 'error', 'message': str(e)}
+            print(f"Error dropping index: {e}")
+
+        self._set_to_cache(cache_key, result)
+        return result

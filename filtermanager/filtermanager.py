@@ -356,6 +356,9 @@ class DataManager:
             aggregations=None,
             timeout=5000
     ):
+        search_fields = tuple(search_fields) if isinstance(search_fields, list) else search_fields
+        search_values = tuple(search_values) if isinstance(search_values, list) else search_values
+
         cache_key = self._generate_cache_key(
             search_fields, search_values, filter_data, projection, sort_data, page, items_per_page, case_sensitive, highlight_field, phrase_matching, boost_fields, exclude_fields, aggregations
         )
@@ -367,14 +370,36 @@ class DataManager:
         query = filter_data if filter_data else {}
         regex_flags = re.IGNORECASE if not case_sensitive else 0
 
-        if isinstance(search_fields, list) and isinstance(search_values, list):
+        if isinstance(search_fields, tuple) and isinstance(search_values, tuple):
             query['$or'] = [
                 {field: {"$regex": re.compile(value, flags=regex_flags)}}
                 for field, value in zip(search_fields, search_values)
             ]
         else:
-            regex = re.compile(search_values, flags=regex_flags)
-            query[search_fields] = {"$regex": regex}
+            if isinstance(search_values, list):
+                regex_patterns = []
+                for value in search_values:
+                    if isinstance(value, str):
+                        try:
+                            regex_patterns.append(re.compile(value, flags=regex_flags))
+                        except re.error as e:
+                            print(f"Regex compilation error for value: {value}. Error: {e}")
+                query[search_fields] = {"$in": regex_patterns} if regex_patterns else {}
+            elif isinstance(search_values, tuple):
+                regex_patterns = []
+                for value in search_values:
+                    if isinstance(value, str):
+                        try:
+                            regex_patterns.append(re.compile(value, flags=regex_flags))
+                        except re.error as e:
+                            print(f"Regex compilation error for value: {value}. Error: {e}")
+                query[search_fields] = {"$in": regex_patterns} if regex_patterns else {}
+            else:
+                if isinstance(search_values, str):
+                    regex = re.compile(search_values, flags=regex_flags)
+                    query[search_fields] = {"$regex": regex}
+                else:
+                    print(f"Invalid type for search_values: {type(search_values)}. Expected str, list of str, or tuple of str.")
 
         if highlight_field:
             projection = projection or {}
@@ -399,7 +424,6 @@ class DataManager:
                     except ValueError:
                         return 0
 
-                # Safely convert values to integers and handle invalid literals
                 results.sort(key=lambda x: sum(safe_int(x.get(field, 0)) for field in boost_fields), reverse=True)
 
             if highlight_field:
@@ -431,7 +455,7 @@ class DataManager:
             self._set_to_cache(cache_key, output)
             print(f"Cache set for key: {cache_key}")
             print(self.get_cache_statistics())
-            return output
+            return encoded_results
         except errors.PyMongoError as e:
             print(f"An error occurred: {e}")
             return {"results": [], "metadata": {}, "aggregations": None}
@@ -456,9 +480,12 @@ class DataManager:
             return cached_result
 
         query = filter_data if filter_data else {}
-        regex_flags = "i"
+
+        regex_flags = re.IGNORECASE
+
         search_term = [re.escape(term) for term in search_term] if isinstance(search_term, list) else [re.escape(search_term)]
         regex_pattern = '|'.join(search_term)
+
         regex = re.compile(regex_pattern, flags=regex_flags)
 
         if isinstance(search_field, list):
@@ -478,16 +505,20 @@ class DataManager:
 
             results = list(cursor)
 
+            if results is None:
+                results = []
+
             for result in results:
                 if isinstance(search_field, list):
                     for field in search_field:
-                        if field in result and result[field]:
+                        if field in result and result[field] is not None:
                             result[field] = self._highlight_keywords(result[field], search_term, highlight_tag)
                 else:
-                    if search_field in result and result[search_field]:
+                    if search_field in result and result[search_field] is not None:
                         result[search_field] = self._highlight_keywords(result[search_field], search_term, highlight_tag)
 
             encoded_results = json.loads(JSONEncoder().encode(results))
+
             self._set_to_cache(cache_key, encoded_results)
             print(f"Cache set for key: {cache_key}")
             print(self.get_cache_statistics())
@@ -498,6 +529,8 @@ class DataManager:
             return []
 
     def _highlight_keywords(self, text, search_terms, highlight_tag):
+        if not text:
+            return text
         for term in search_terms:
             text = re.sub(re.escape(term), f'{highlight_tag}\\0{highlight_tag[1:]}', text, flags=re.IGNORECASE)
         return text
@@ -525,14 +558,17 @@ class DataManager:
 
         sort = []
         if custom_sort:
-            for field, order in custom_sort:
-                if order.lower() in {'asc', 'desc'}:
-                    sort.append((field, ASCENDING if order.lower() == 'asc' else DESCENDING))
-                elif order.lower() == 'lenasc':
+            for option in custom_sort:
+                field = option["field"]
+                order = option["order"].lower()
+
+                if order in {'asc', 'desc'}:
+                    sort.append((field, ASCENDING if order == 'asc' else DESCENDING))
+                elif order == 'lenasc':
                     sort.append((field, ASCENDING))
-                elif order.lower() == 'lendesc':
+                elif order == 'lendesc':
                     sort.append((field, DESCENDING))
-                elif order.lower() == 'custom':
+                elif order == 'custom':
                     sort.append((field, ASCENDING))
                 else:
                     raise ValueError(f"Invalid sort order: {order}. Use 'asc', 'desc', 'lenasc', 'lendesc', or 'custom'.")
@@ -549,7 +585,8 @@ class DataManager:
             results = list(cursor)
 
             if custom_sort_functions:
-                for field, func in custom_sort_functions.items():
+                for field, func_name in custom_sort_functions.items():
+                    func = globals().get(func_name)
                     if callable(func):
                         results.sort(key=lambda x: func(x.get(field, None)))
                     else:
@@ -560,6 +597,8 @@ class DataManager:
                     if data_type == 'number':
                         results.sort(key=lambda x: float(x.get(field, 0)) if x.get(field) is not None else float('-inf' if null_handling == 'first' else 'inf'))
                     elif data_type == 'date':
+                        results.sort(key=lambda x: x.get(field, '') if x.get(field) is not None else '')
+                    elif data_type == 'string':
                         results.sort(key=lambda x: x.get(field, '') if x.get(field) is not None else '')
                     else:
                         raise ValueError(f"Unsupported data type for field {field}: {data_type}")

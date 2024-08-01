@@ -456,7 +456,7 @@ def keywordhighlighting():
         items_per_page = data.get('items_per_page', None)
         highlight_tag = data.get('highlight_tag', '<mark>')
 
-        valid_keys = {'search_field', 'keywords'}
+        valid_keys = {'search_field', 'keywords', 'connection_string', 'db_name', 'collection_name'}
         if not set(data.keys()).issubset(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'highlight_tag'})):
             invalid_keys = set(data.keys()) - valid_keys
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys.union({'filter_data', 'projection', 'sort_data', 'page', 'items_per_page', 'highlight_tag'}))}.")
@@ -472,6 +472,9 @@ def keywordhighlighting():
             items_per_page=items_per_page,
             highlight_tag=highlight_tag
         )
+
+        anonymizer = Anonymizer(connection_string, db_name, collection_name)
+        results = anonymize_results(results, anonymizer)
 
         return jsonify(results)
 
@@ -494,7 +497,6 @@ def customsortingoptions():
         collection_name = data.get('collection_name')
         sort_options = data.get('sort_options', {})
         query = data.get('query', None)
-        custom_sort = data.get('custom_sort', None)
         data_types = data.get('data_types', None)
         custom_sort_functions = data.get('custom_sort_functions', None)
         null_handling = data.get('null_handling', 'last')
@@ -502,7 +504,7 @@ def customsortingoptions():
         limit = data.get('limit', None)
         fields = data.get('fields', None)
 
-        valid_keys = {'sort_options', 'query', 'custom_sort', 'data_types', 'custom_sort_functions', 'null_handling', 'offset', 'limit', 'fields'}
+        valid_keys = {'connection_string','db_name','collection_name','sort_options', 'query', 'data_types', 'custom_sort_functions', 'null_handling', 'offset', 'limit', 'fields'}
         if not set(data.keys()).issubset(valid_keys):
             invalid_keys = set(data.keys()) - valid_keys
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
