@@ -18,6 +18,7 @@ def generate_report():
         end_date_str = request.args.get('end_date')
         action_filter = request.args.get('action')
         status_filter = request.args.get('status')
+        format_filter = request.args.get('format', 'csv')
 
         if not start_date_str or not end_date_str:
             return jsonify({"error": "start_date and end_date parameters are required"}), 400
@@ -51,6 +52,17 @@ def generate_report():
         df.drop(columns=['_id'], inplace=True)
 
         output = BytesIO()
+
+        if format_filter == 'json':
+            df.to_json(output, orient='records', lines=True)
+            output.seek(0)
+            return send_file(
+                output,
+                mimetype='application/json',
+                as_attachment=True,
+                download_name='admin_activity_report.json'
+            )
+
         df.to_csv(output, index=False)
         output.seek(0)
 
@@ -60,6 +72,7 @@ def generate_report():
             as_attachment=True,
             download_name='admin_activity_report.csv'
         )
+
     except errors.PyMongoError as e:
         return jsonify({"error": "Database error. Please try again later."}), 500
     except Exception as e:

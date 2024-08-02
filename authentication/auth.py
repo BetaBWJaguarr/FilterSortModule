@@ -57,6 +57,12 @@ def password_complexity_check(password):
         return True
     return False
 
+def handle_pymongo_error():
+    return jsonify({"error": "Database error. Please try again later."}), 500
+
+def handle_unexpected_error():
+    return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+
 @auth.route('/filtermanager/auth/register', methods=['POST'])
 @limiter.limit("5 per minute")
 def register():
@@ -105,10 +111,10 @@ def register():
         )
 
         return jsonify({"message": "User registered successfully. Please verify your email.", "user_id": user.id}), 201
-    except errors.PyMongoError as e:
-        return jsonify({"error": "Database error. Please try again later."}), 500
-    except Exception as e:
-        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+    except errors.PyMongoError:
+        return handle_pymongo_error()
+    except Exception:
+        return handle_unexpected_error()
 
 @auth.route('/filtermanager/auth/login', methods=['POST'])
 def login():
@@ -187,10 +193,10 @@ def login():
         )
 
         return jsonify({"error": "Invalid email or password"}), 401
-    except errors.PyMongoError as e:
-        return jsonify({"error": "Database error. Please try again later."}), 500
-    except Exception as e:
-        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+    except errors.PyMongoError:
+        return handle_pymongo_error()
+    except Exception:
+        return handle_unexpected_error()
 
 @auth.route('/filtermanager/auth/logout', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -250,10 +256,10 @@ def reset_password():
                 return jsonify({"error": "Invalid security question or answer"}), 400
 
         return jsonify({"error": "Email not found"}), 404
-    except errors.PyMongoError as e:
-        return jsonify({"error": "Database error. Please try again later."}), 500
-    except Exception as e:
-        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+    except errors.PyMongoError:
+        return handle_pymongo_error()
+    except Exception:
+        return handle_unexpected_error()
 
 @auth.route('/filtermanager/auth/update_info', methods=['PUT'])
 @limiter.limit("5 per minute")
@@ -287,10 +293,10 @@ def update_info():
         else:
             return jsonify({"error": "No valid fields provided for update"}), 400
 
-    except errors.PyMongoError as e:
-        return jsonify({"error": "Database error. Please try again later."}), 500
-    except Exception as e:
-        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+    except errors.PyMongoError:
+        return handle_pymongo_error()
+    except Exception:
+        return handle_unexpected_error()
 
 @auth.route('/filtermanager/auth/delete_account', methods=['DELETE'])
 @limiter.limit("5 per minute")
@@ -312,10 +318,10 @@ def delete_account():
         )
 
         return jsonify({"message": "Account deleted successfully"}), 200
-    except errors.PyMongoError as e:
-        return jsonify({"error": "Database error. Please try again later."}), 500
-    except Exception as e:
-        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+    except errors.PyMongoError:
+        return handle_pymongo_error()
+    except Exception:
+        return handle_unexpected_error()
 
 @auth.route('/filtermanager/auth/email_change', methods=['PUT'])
 @limiter.limit("5 per minute")
@@ -341,10 +347,10 @@ def request_email_change():
         send_email("Confirm your new email address", new_email, f"Click here to confirm your email change: {verification_link}")
 
         return jsonify({"message": "A verification email has been sent to your new email address."}), 200
-    except errors.PyMongoError as e:
-        return jsonify({"error": "Database error. Please try again later."}), 500
-    except Exception as e:
-        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
+    except errors.PyMongoError:
+        return handle_pymongo_error()
+    except Exception:
+        return handle_unexpected_error()
 
 
 @auth.route('/filtermanager/auth/export_data', methods=['GET'])

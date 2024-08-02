@@ -607,4 +607,98 @@ Timestamp: Thu Aug  1 15:44:13 2024
 Traceback:
 NoneType: None
 NoneType: None
+------------------------------------------------------------2024-08-02 10:32:03,874 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-02 10:32:03,874 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-02 10:32:03,875 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-02 10:32:03,875 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-02 10:43:09,532 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:43:09] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-08-02 10:43:09,532 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:43:09] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-08-02 10:46:35,227 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:46:35] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:46:35,227 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:46:35] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:46:42,977 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:46:42] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:46:42,977 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:46:42] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:48:17,505 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:48:17] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:48:17,505 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:48:17] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:48:29,115 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:48:29] "[31m[1mPOST /filtermanager/match HTTP/1.1[0m" 401 -
+2024-08-02 10:48:29,115 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:48:29] "[31m[1mPOST /filtermanager/match HTTP/1.1[0m" 401 -
+2024-08-02 10:48:43,754 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:48:43] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:48:43,754 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:48:43] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:48:57,194 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:48:57] "[31m[1mPOST /filtermanager/match HTTP/1.1[0m" 401 -
+2024-08-02 10:48:57,194 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:48:57] "[31m[1mPOST /filtermanager/match HTTP/1.1[0m" 401 -
+2024-08-02 10:49:30,584 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:49:30] "[31m[1mGET /filtermanager/match HTTP/1.1[0m" 405 -
+2024-08-02 10:49:30,584 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:49:30] "[31m[1mGET /filtermanager/match HTTP/1.1[0m" 405 -
+2024-08-02 10:49:31,828 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:49:31] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-08-02 10:49:31,828 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:49:31] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-08-02 10:50:22,000 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:50:22] "[31m[1mPOST /filtermanager/match HTTP/1.1[0m" 401 -
+2024-08-02 10:50:22,000 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:50:22] "[31m[1mPOST /filtermanager/match HTTP/1.1[0m" 401 -
+2024-08-02 10:52:28,516 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:52:28] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:52:28,516 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:52:28] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:52:51,954 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:52:51] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-08-02 10:52:51,954 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:52:51] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-08-02 10:53:09,603 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:53:09] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-08-02 10:53:09,603 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:53:09] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-08-02 10:53:28,785 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:53:28] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-08-02 10:53:28,785 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:53:28] "POST /filtermanager/match HTTP/1.1" 200 -
+2024-08-02 10:58:29,737 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:58:29] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 10:58:29,737 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 10:58:29] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 11:00:07,273 - root - ERROR - Unexpected error occurred: your_connection_string:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 66ac91e8b12507fee6772891, topology_type: Unknown, servers: [<ServerDescription ('your_connection_string', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('your_connection_string:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 59, in match
+    results = match_request(data, filter_data, page, items_per_page)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\managers\manager.py", line 22, in match_request
+    results = data_manager.match(filter_data, page, items_per_page, projection, sort_data, text_search, regex_search)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\filtermanager\filtermanager.py", line 55, in match
+    results = list(cursor)
+              ^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\cursor.py", line 1243, in next
+    if len(self.__data) or self._refresh():
+                           ^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\cursor.py", line 1160, in _refresh
+    self.__send_message(q)
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\cursor.py", line 1039, in __send_message
+    response = client._run_operation(
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\_csot.py", line 108, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\mongo_client.py", line 1431, in _run_operation
+    return self._retryable_read(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\mongo_client.py", line 1540, in _retryable_read
+    return self._retry_internal(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\_csot.py", line 108, in csot_wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\mongo_client.py", line 1507, in _retry_internal
+    ).run()
+      ^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\mongo_client.py", line 2353, in run
+    return self._read() if self._is_read else self._write()
+           ^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\mongo_client.py", line 2483, in _read
+    self._server = self._get_server()
+                   ^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\mongo_client.py", line 2439, in _get_server
+    return self._client._select_server(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\mongo_client.py", line 1322, in _select_server
+    server = topology.select_server(
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\topology.py", line 368, in select_server
+    server = self._select_server(
+             ^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\topology.py", line 346, in _select_server
+    servers = self.select_servers(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\topology.py", line 253, in select_servers
+    server_descriptions = self._select_servers_loop(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\topology.py", line 303, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: your_connection_string:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 66ac91e8b12507fee6772891, topology_type: Unknown, servers: [<ServerDescription ('your_connection_string', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('your_connection_string:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
 ------------------------------------------------------------

@@ -88,4 +88,7 @@ class CacheManager(metaclass=Singleton):
         }
 
     def print_cache(self):
-        print(self.cache)
+        try:
+            print(self.cache)
+        except UnicodeEncodeError:
+            print(self.cache.encode('utf-8'))

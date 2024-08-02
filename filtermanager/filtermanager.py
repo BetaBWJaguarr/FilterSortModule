@@ -76,7 +76,17 @@ class DataManager:
             field_name, range_values = list(range_field.items())[0]
             filter_data[field_name] = {"$gte": range_values[0], "$lte": range_values[1]}
 
+        if isinstance(sort_data, str):
+            try:
+                sort_data = json.loads(sort_data)
+            except json.JSONDecodeError as e:
+                raise ValueError("Invalid JSON string for sort_data") from e
+
+        if not isinstance(sort_data, dict):
+            raise ValueError("sort_data must be a dictionary")
+
         sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+
         results = self.collection.find(filter_data).sort(sort)
 
         if page_size and page_number:
@@ -360,8 +370,10 @@ class DataManager:
         search_values = tuple(search_values) if isinstance(search_values, list) else search_values
 
         cache_key = self._generate_cache_key(
-            search_fields, search_values, filter_data, projection, sort_data, page, items_per_page, case_sensitive, highlight_field, phrase_matching, boost_fields, exclude_fields, aggregations
+            search_fields, search_values, filter_data, projection, sort_data, page, items_per_page,
+            case_sensitive, highlight_field, phrase_matching, boost_fields, exclude_fields, aggregations
         )
+
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
             print(f"Cache hit for key: {cache_key}")
@@ -376,30 +388,21 @@ class DataManager:
                 for field, value in zip(search_fields, search_values)
             ]
         else:
-            if isinstance(search_values, list):
-                regex_patterns = []
+            regex_patterns = []
+            if isinstance(search_values, (list, tuple)):
                 for value in search_values:
                     if isinstance(value, str):
                         try:
                             regex_patterns.append(re.compile(value, flags=regex_flags))
                         except re.error as e:
                             print(f"Regex compilation error for value: {value}. Error: {e}")
-                query[search_fields] = {"$in": regex_patterns} if regex_patterns else {}
-            elif isinstance(search_values, tuple):
-                regex_patterns = []
-                for value in search_values:
-                    if isinstance(value, str):
-                        try:
-                            regex_patterns.append(re.compile(value, flags=regex_flags))
-                        except re.error as e:
-                            print(f"Regex compilation error for value: {value}. Error: {e}")
-                query[search_fields] = {"$in": regex_patterns} if regex_patterns else {}
+                if isinstance(search_fields, str):
+                    query[search_fields] = {"$in": regex_patterns} if regex_patterns else {}
+            elif isinstance(search_values, str):
+                regex = re.compile(search_values, flags=regex_flags)
+                query[search_fields] = {"$regex": regex}
             else:
-                if isinstance(search_values, str):
-                    regex = re.compile(search_values, flags=regex_flags)
-                    query[search_fields] = {"$regex": regex}
-                else:
-                    print(f"Invalid type for search_values: {type(search_values)}. Expected str, list of str, or tuple of str.")
+                print(f"Invalid type for search_values: {type(search_values)}. Expected str, list of str, or tuple of str.")
 
         if highlight_field:
             projection = projection or {}
@@ -429,6 +432,7 @@ class DataManager:
             if highlight_field:
                 for result in results:
                     if highlight_field in result:
+                        regex = re.compile('|'.join(search_values), flags=regex_flags)
                         result[highlight_field] = re.sub(regex, lambda m: f'**{m.group()}**', result[highlight_field])
             if aggregations:
                 pipeline = [
@@ -440,10 +444,11 @@ class DataManager:
                 aggregation_results = None
 
             encoded_results = json.loads(JSONEncoder().encode(results))
+            total_count = self.collection.count_documents(query)
             metadata = {
-                "total_count": self.collection.count_documents(query),
+                "total_count": total_count,
                 "current_page": page,
-                "total_pages": (self.collection.count_documents(query) + items_per_page - 1) // items_per_page
+                "total_pages": (total_count + items_per_page - 1) // items_per_page
             }
 
             output = {
