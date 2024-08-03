@@ -23,7 +23,7 @@ class CacheManager(metaclass=Singleton):
         key_string = ''.join(key_parts)
         hash_object = hashlib.sha256(key_string.encode())
         hex_dig = hash_object.hexdigest()
-        print(f"Generated cache key {hex_dig} for args {args} and kwargs {kwargs}")
+        print(f"Generated cache key {hex_dig} for args {args} and kwargs {kwargs}".encode('utf-8'))
         return hex_dig
 
     def _get_from_cache(self, cache_key):

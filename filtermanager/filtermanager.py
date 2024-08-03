@@ -1,6 +1,7 @@
 import re
 from pymongo import MongoClient, ASCENDING, DESCENDING
 from pymongo import errors
+from collections import OrderedDict
 import json
 from utils.jsonencoder import JSONEncoder
 from filtermanager.managers.cachemanager import CacheManager
@@ -130,14 +131,19 @@ class DataManager:
         if facet_fields:
             pipeline.append({"$facet": OrderedDict(facet_fields)})
 
+        if projection:
+            pipeline.append({"$project": projection})
+
+            print(f"Pipeline: {pipeline}")
+
         try:
             results = list(self.collection.aggregate(pipeline))
-            encoded_results = json.loads(JSONEncoder().encode(results))
+            encoded_results = json.dumps(results, cls=JSONEncoder)
             self._set_to_cache(cache_key, encoded_results)
             print(f"Cache set for key: {cache_key}")
             print(self.get_cache_statistics())
 
-            return encoded_results
+            return json.loads(encoded_results)
 
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -366,8 +372,8 @@ class DataManager:
             aggregations=None,
             timeout=5000
     ):
-        search_fields = tuple(search_fields) if isinstance(search_fields, list) else search_fields
-        search_values = tuple(search_values) if isinstance(search_values, list) else search_values
+        search_fields = self._convert_to_tuple(search_fields)
+        search_values = self._convert_to_tuple(search_values)
 
         cache_key = self._generate_cache_key(
             search_fields, search_values, filter_data, projection, sort_data, page, items_per_page,
@@ -379,69 +385,39 @@ class DataManager:
             print(f"Cache hit for key: {cache_key}")
             return cached_result
 
-        query = filter_data if filter_data else {}
-        regex_flags = re.IGNORECASE if not case_sensitive else 0
-
-        if isinstance(search_fields, tuple) and isinstance(search_values, tuple):
-            query['$or'] = [
-                {field: {"$regex": re.compile(value, flags=regex_flags)}}
-                for field, value in zip(search_fields, search_values)
-            ]
-        else:
-            regex_patterns = []
-            if isinstance(search_values, (list, tuple)):
-                for value in search_values:
-                    if isinstance(value, str):
-                        try:
-                            regex_patterns.append(re.compile(value, flags=regex_flags))
-                        except re.error as e:
-                            print(f"Regex compilation error for value: {value}. Error: {e}")
-                if isinstance(search_fields, str):
-                    query[search_fields] = {"$in": regex_patterns} if regex_patterns else {}
-            elif isinstance(search_values, str):
-                regex = re.compile(search_values, flags=regex_flags)
-                query[search_fields] = {"$regex": regex}
-            else:
-                print(f"Invalid type for search_values: {type(search_values)}. Expected str, list of str, or tuple of str.")
+        query = self._build_query(search_fields, search_values, filter_data, case_sensitive)
 
         if highlight_field:
             projection = projection or {}
             projection[highlight_field] = 1
 
-        skip = (page - 1) * items_per_page if page and items_per_page else 0
-        limit = items_per_page if items_per_page else 0
+        skip, limit = self._calculate_pagination(page, items_per_page)
 
         try:
             cursor = self.collection.find(query, projection).skip(skip).limit(limit).max_time_ms(timeout)
 
             if sort_data:
-                sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
-                cursor = cursor.sort(sort)
+                cursor = cursor.sort([(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()])
 
             results = list(cursor)
 
             if boost_fields:
-                def safe_int(value):
-                    try:
-                        return int(value)
-                    except ValueError:
-                        return 0
-
-                results.sort(key=lambda x: sum(safe_int(x.get(field, 0)) for field in boost_fields), reverse=True)
+                results.sort(key=lambda x: sum(int(x.get(field, 0)) for field in boost_fields), reverse=True)
 
             if highlight_field:
+                regex_flags = re.IGNORECASE if not case_sensitive else 0
+                regex = re.compile('|'.join(search_values), flags=regex_flags)
                 for result in results:
                     if highlight_field in result:
-                        regex = re.compile('|'.join(search_values), flags=regex_flags)
                         result[highlight_field] = re.sub(regex, lambda m: f'**{m.group()}**', result[highlight_field])
+
+            aggregation_results = None
             if aggregations:
                 pipeline = [
                     {"$match": query},
                     {"$group": {field: {"$sum": "$" + field} for field in aggregations}}
                 ]
                 aggregation_results = list(self.collection.aggregate(pipeline))
-            else:
-                aggregation_results = None
 
             encoded_results = json.loads(JSONEncoder().encode(results))
             total_count = self.collection.count_documents(query)
@@ -464,6 +440,40 @@ class DataManager:
         except errors.PyMongoError as e:
             print(f"An error occurred: {e}")
             return {"results": [], "metadata": {}, "aggregations": None}
+
+    def _convert_to_tuple(self, value):
+        return tuple(value) if isinstance(value, list) else value
+
+    def _build_query(self, search_fields, search_values, filter_data, case_sensitive):
+        query = filter_data if filter_data else {}
+        regex_flags = re.IGNORECASE if not case_sensitive else 0
+
+        if isinstance(search_fields, tuple) and isinstance(search_values, tuple):
+            query['$or'] = [
+                {field: {"$regex": re.compile(value, flags=regex_flags)}}
+                for field, value in zip(search_fields, search_values)
+            ]
+        else:
+            regex_patterns = []
+            if isinstance(search_values, (list, tuple)):
+                for value in search_values:
+                    if isinstance(value, str):
+                        try:
+                            regex_patterns.append(re.compile(value, flags=regex_flags))
+                        except re.error as e:
+                            print(f"Regex compilation error for value: {value}. Error: {e}")
+            if isinstance(search_fields, str):
+                query[search_fields] = {"$in": regex_patterns} if regex_patterns else {}
+            elif isinstance(search_values, str):
+                query[search_fields] = {"$regex": re.compile(search_values, flags=regex_flags)}
+            else:
+                print(f"Invalid type for search_values: {type(search_values)}. Expected str, list of str, or tuple of str.")
+        return query
+
+    def _calculate_pagination(self, page, items_per_page):
+        skip = (page - 1) * items_per_page if page and items_per_page else 0
+        limit = items_per_page if items_per_page else 0
+        return skip, limit
 
     def keywordhighlighting(
             self,
@@ -620,3 +630,73 @@ class DataManager:
         except errors.PyMongoError as e:
             print(f"An error occurred: {e}")
             return []
+
+    def geospatial_filtering(
+            self,
+            location_field,
+            coordinates,
+            max_distance=None,
+            min_distance=None,
+            filter_data=None,
+            projection=None,
+            sort_data=None,
+            page=None,
+            items_per_page=None,
+            timeout=5000
+    ):
+        cache_key = self._generate_cache_key(
+            location_field, coordinates, max_distance, min_distance, filter_data, projection, sort_data, page, items_per_page
+        )
+        cached_result = self._get_from_cache(cache_key)
+        if cached_result:
+            print(f"Cache hit for key: {cache_key}")
+            return cached_result
+
+        query = filter_data if filter_data else {}
+
+        geo_query = {
+            "$near": {
+                "$geometry": {
+                    "type": "Point",
+                    "coordinates": coordinates
+                }
+            }
+        }
+
+        if max_distance is not None:
+            geo_query["$near"]["$maxDistance"] = max_distance
+        if min_distance is not None:
+            geo_query["$near"]["$minDistance"] = min_distance
+
+        query[location_field] = geo_query
+
+        skip, limit = self._calculate_pagination(page, items_per_page)
+
+        try:
+            cursor = self.collection.find(query, projection).skip(skip).limit(limit).max_time_ms(timeout)
+
+            if sort_data:
+                cursor = cursor.sort([(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()])
+
+            results = list(cursor)
+
+            encoded_results = json.loads(JSONEncoder().encode(results))
+            total_count = self.collection.count_documents(query)
+            metadata = {
+                "total_count": total_count,
+                "current_page": page,
+                "total_pages": (total_count + items_per_page - 1) // items_per_page
+            }
+
+            output = {
+                "results": encoded_results,
+                "metadata": metadata
+            }
+
+            self._set_to_cache(cache_key, output)
+            print(f"Cache set for key: {cache_key}")
+            print(self.get_cache_statistics())
+            return encoded_results
+        except errors.PyMongoError as e:
+            print(f"An error occurred: {e}")
+            return {"results": [], "metadata": {}}

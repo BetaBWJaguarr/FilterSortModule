@@ -84,13 +84,15 @@ def sort():
         filter_data = data.get('filter', {})
         sort_data = data.get('sort', None)
         compare_field = data.get('compare_field', None)
+        page_size = data.get('page_size', None)
+        page_number = data.get('page_number', None)
 
-        valid_keys = {'db_name', 'collection_name', 'connection_string', 'filter', 'sort', 'compare_field'}
+        valid_keys = {'db_name', 'collection_name', 'connection_string', 'filter', 'sort', 'compare_field', 'page_size', 'page_number'}
         if not set(data.keys()).issubset(valid_keys):
             invalid_keys = set(data.keys()) - valid_keys
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
 
-        results = sort_request(data, filter_data, sort_data, compare_field)
+        results = sort_request(data, filter_data, sort_data, compare_field, page_size, page_number)
         anonymizer = Anonymizer(connection_string, db_name, collection_name)
 
         results = anonymize_results(results, anonymizer)

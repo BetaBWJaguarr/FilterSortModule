@@ -701,4 +701,140 @@ Traceback (most recent call last):
   File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\pymongo\topology.py", line 303, in _select_servers_loop
     raise ServerSelectionTimeoutError(
 pymongo.errors.ServerSelectionTimeoutError: your_connection_string:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms), Timeout: 30s, Topology Description: <TopologyDescription id: 66ac91e8b12507fee6772891, topology_type: Unknown, servers: [<ServerDescription ('your_connection_string', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('your_connection_string:27017: [Errno 11001] getaddrinfo failed (configured timeouts: socketTimeoutMS: 20000.0ms, connectTimeoutMS: 20000.0ms)')>]>
+------------------------------------------------------------2024-08-02 20:38:07,072 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-02 20:38:07,072 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-02 20:38:07,073 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-02 20:38:07,073 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-02 20:44:18,148 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:44:18] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 20:44:18,148 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:44:18] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 20:44:35,028 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:44:35] "POST /filtermanager/type_search HTTP/1.1" 200 -
+2024-08-02 20:44:35,028 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:44:35] "POST /filtermanager/type_search HTTP/1.1" 200 -
+2024-08-02 20:46:22,185 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:46:22] "POST /filtermanager/type_search HTTP/1.1" 200 -
+2024-08-02 20:46:22,185 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:46:22] "POST /filtermanager/type_search HTTP/1.1" 200 -
+2024-08-02 20:49:56,667 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:49:56] "[31m[1mPOST /filtermanager/sort HTTP/1.1[0m" 401 -
+2024-08-02 20:49:56,667 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:49:56] "[31m[1mPOST /filtermanager/sort HTTP/1.1[0m" 401 -
+2024-08-02 20:50:00,703 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:50:00] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 20:50:00,703 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:50:00] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-02 20:50:15,711 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:50:15] "POST /filtermanager/sort HTTP/1.1" 200 -
+2024-08-02 20:50:15,711 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:50:15] "POST /filtermanager/sort HTTP/1.1" 200 -
+2024-08-02 20:51:12,171 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:51:12] "POST /filtermanager/sort HTTP/1.1" 200 -
+2024-08-02 20:51:12,171 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:51:12] "POST /filtermanager/sort HTTP/1.1" 200 -
+2024-08-02 20:52:47,610 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:52:47] "POST /filtermanager/sort HTTP/1.1" 200 -
+2024-08-02 20:52:47,610 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:52:47] "POST /filtermanager/sort HTTP/1.1" 200 -
+2024-08-02 20:54:14,689 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:54:14] "POST /filtermanager/sort HTTP/1.1" 200 -
+2024-08-02 20:54:14,689 - werkzeug - INFO - 127.0.0.1 - - [02/Aug/2024 20:54:14] "POST /filtermanager/sort HTTP/1.1" 200 -
+2024-08-02 20:54:54,359 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: page_size, page_number. Valid keys are: sort, connection_string, collection_name, compare_field, filter, db_name.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Fri Aug  2 20:54:54 2024
+Traceback:
+NoneType: None
+NoneType: None
 ------------------------------------------------------------
+2024-08-02 20:54:54,359 - errorhandling.errormanager - ERROR - CustomValueError occurred: Error: Invalid keys: page_size, page_number. Valid keys are: sort, connection_string, collection_name, compare_field, filter, db_name.
+Error Code: 1001
+Details: No additional details provided.
+Timestamp: Fri Aug  2 20:54:54 2024
+Traceback:
+NoneType: None
+NoneType: None
+------------------------------------------------------------2024-08-03 11:35:49,029 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-03 11:35:49,029 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-03 11:35:49,030 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-03 11:35:49,030 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-03 11:40:32,303 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:32] "[31m[1mPOST /filtermanager/multi_filter HTTP/1.1[0m" 401 -
+2024-08-03 11:40:32,303 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:32] "[31m[1mPOST /filtermanager/multi_filter HTTP/1.1[0m" 401 -
+2024-08-03 11:40:35,504 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:35] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-03 11:40:35,504 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:35] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-03 11:40:42,943 - root - ERROR - Unexpected error occurred: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\werkzeug\wrappers\request.py", line 608, in get_json
+    rv = self.json_module.loads(data)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\json\provider.py", line 187, in loads
+    return json.loads(s, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tuna\AppData\Local\Programs\Python\Python311\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tuna\AppData\Local\Programs\Python\Python311\Lib\json\decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tuna\AppData\Local\Programs\Python\Python311\Lib\json\decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 5 column 1 (char 223)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\wrappers.py", line 131, in on_json_loading_failed
+    return super().on_json_loading_failed(e)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\werkzeug\wrappers\request.py", line 642, in on_json_loading_failed
+    raise BadRequest(f"Failed to decode JSON object: {e}")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Failed to decode JSON object: Expecting property name enclosed in double quotes: line 5 column 1 (char 223)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 115, in multi_filter
+    data = request.get_json()
+           ^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\werkzeug\wrappers\request.py", line 617, in get_json
+    rv = self.on_json_loading_failed(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\wrappers.py", line 136, in on_json_loading_failed
+    raise BadRequest() from e
+werkzeug.exceptions.BadRequest: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+------------------------------------------------------------
+2024-08-03 11:40:42,943 - root - ERROR - Unexpected error occurred: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\werkzeug\wrappers\request.py", line 608, in get_json
+    rv = self.json_module.loads(data)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\json\provider.py", line 187, in loads
+    return json.loads(s, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tuna\AppData\Local\Programs\Python\Python311\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tuna\AppData\Local\Programs\Python\Python311\Lib\json\decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\tuna\AppData\Local\Programs\Python\Python311\Lib\json\decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 5 column 1 (char 223)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\wrappers.py", line 131, in on_json_loading_failed
+    return super().on_json_loading_failed(e)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\werkzeug\wrappers\request.py", line 642, in on_json_loading_failed
+    raise BadRequest(f"Failed to decode JSON object: {e}")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Failed to decode JSON object: Expecting property name enclosed in double quotes: line 5 column 1 (char 223)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "T:\TunaProjects\FilterSortModules\rest_api\restapi.py", line 115, in multi_filter
+    data = request.get_json()
+           ^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\werkzeug\wrappers\request.py", line 617, in get_json
+    rv = self.on_json_loading_failed(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "T:\TunaProjects\FilterSortModules\venv\Lib\site-packages\flask\wrappers.py", line 136, in on_json_loading_failed
+    raise BadRequest() from e
+werkzeug.exceptions.BadRequest: 400 Bad Request: The browser (or proxy) sent a request that this server could not understand.
+------------------------------------------------------------
+2024-08-03 11:40:42,958 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:42] "[35m[1mPOST /filtermanager/multi_filter HTTP/1.1[0m" 500 -
+2024-08-03 11:40:42,958 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:42] "[35m[1mPOST /filtermanager/multi_filter HTTP/1.1[0m" 500 -
+2024-08-03 11:40:57,122 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:57] "POST /filtermanager/multi_filter HTTP/1.1" 200 -
+2024-08-03 11:40:57,122 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:57] "POST /filtermanager/multi_filter HTTP/1.1" 200 -
