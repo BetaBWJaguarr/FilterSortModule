@@ -46,17 +46,22 @@ def match():
         connection_string = data.get('connection_string')
         db_name = data.get('db_name')
         collection_name = data.get('collection_name')
-        filter_data = data.get('match')
+        filter_data = data.get('match', {})
+        projection = data.get('projection', {})
+        sort_data = data.get('sort', {})
+        text_search = data.get('text_search', None)
+        regex_search = data.get('regex_search', None)
+        page = request.args.get('page', None)
+        items_per_page = request.args.get('items_per_page', None)
 
-        page = request.args.get('page', type=int)
-        items_per_page = request.args.get('items_per_page', type=int)
-
-        valid_keys = {'connection_string', 'db_name', 'collection_name', 'match'}
+        valid_keys = {'connection_string', 'db_name', 'collection_name', 'match', 'projection', 'sort', 'text_search', 'regex_search'}
         if not set(data.keys()).issubset(valid_keys):
             invalid_keys = set(data.keys()) - valid_keys
             raise CustomValueError(f"Invalid keys: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}.")
 
-        results = match_request(data, filter_data, page, items_per_page)
+        results = match_request(
+            data,filter_data, page, items_per_page, projection, sort_data, text_search, regex_search
+        )
 
         anonymizer = Anonymizer(connection_string, db_name, collection_name)
         results = anonymize_results(results, anonymizer)
