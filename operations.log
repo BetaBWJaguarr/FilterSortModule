@@ -838,3 +838,61 @@ werkzeug.exceptions.BadRequest: 400 Bad Request: The browser (or proxy) sent a r
 2024-08-03 11:40:42,958 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:42] "[35m[1mPOST /filtermanager/multi_filter HTTP/1.1[0m" 500 -
 2024-08-03 11:40:57,122 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:57] "POST /filtermanager/multi_filter HTTP/1.1" 200 -
 2024-08-03 11:40:57,122 - werkzeug - INFO - 127.0.0.1 - - [03/Aug/2024 11:40:57] "POST /filtermanager/multi_filter HTTP/1.1" 200 -
+2024-08-06 14:13:22,107 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:13:22] "[35m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 500 -
+2024-08-06 14:13:22,107 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:13:22] "[35m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 500 -
+2024-08-06 14:13:46,754 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:13:46] "[35m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 500 -
+2024-08-06 14:13:46,754 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:13:46] "[35m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 500 -
+2024-08-06 14:14:03,037 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:14:03] "[31m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 400 -
+2024-08-06 14:14:03,037 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:14:03] "[31m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 400 -
+2024-08-06 14:14:42,348 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:14:42] "POST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1" 200 -
+2024-08-06 14:14:42,348 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:14:42] "POST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1" 200 -
+2024-08-06 14:17:53,423 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-06 14:17:53,423 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-06 14:17:53,424 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-06 14:17:53,424 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-06 14:18:08,687 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:18:08] "[31m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 401 -
+2024-08-06 14:18:08,687 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:18:08] "[31m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 401 -
+2024-08-06 14:18:12,842 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:18:12] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:18:12,842 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:18:12] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:18:24,220 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:18:24] "[31m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 400 -
+2024-08-06 14:18:24,220 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:18:24] "[31m[1mPOST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1[0m" 400 -
+2024-08-06 14:18:30,005 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:18:30] "POST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1" 200 -
+2024-08-06 14:18:30,005 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:18:30] "POST /filtermanager/admin/user_update/72ebcead-7ad7-411a-a44e-d94904f4cb0d HTTP/1.1" 200 -
+2024-08-06 14:19:22,450 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:22] "[35m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 201 -
+2024-08-06 14:19:22,450 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:22] "[35m[1mPOST /filtermanager/auth/register HTTP/1.1[0m" 201 -
+2024-08-06 14:19:26,012 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:26] "GET /filtermanager/auth/verify/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI5NDY3NjEsInVzZXJfaWQiOiI5Nzk0M2FjNy1kZDU2LTQ5ODgtYTJjOC1jM2RiYmQwZGI0ZGIifQ.gFzX9Uoljh94_HpN8zXqFjRpyjPxHU4cW5ZpeieOMiE HTTP/1.1" 200 -
+2024-08-06 14:19:26,012 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:26] "GET /filtermanager/auth/verify/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI5NDY3NjEsInVzZXJfaWQiOiI5Nzk0M2FjNy1kZDU2LTQ5ODgtYTJjOC1jM2RiYmQwZGI0ZGIifQ.gFzX9Uoljh94_HpN8zXqFjRpyjPxHU4cW5ZpeieOMiE HTTP/1.1" 200 -
+2024-08-06 14:19:27,370 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:27] "GET /filtermanager/auth/verify/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI5NDY3NjEsInVzZXJfaWQiOiI5Nzk0M2FjNy1kZDU2LTQ5ODgtYTJjOC1jM2RiYmQwZGI0ZGIifQ.gFzX9Uoljh94_HpN8zXqFjRpyjPxHU4cW5ZpeieOMiE HTTP/1.1" 200 -
+2024-08-06 14:19:27,370 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:27] "GET /filtermanager/auth/verify/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjI5NDY3NjEsInVzZXJfaWQiOiI5Nzk0M2FjNy1kZDU2LTQ5ODgtYTJjOC1jM2RiYmQwZGI0ZGIifQ.gFzX9Uoljh94_HpN8zXqFjRpyjPxHU4cW5ZpeieOMiE HTTP/1.1" 200 -
+2024-08-06 14:19:46,197 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:46] "[35m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 500 -
+2024-08-06 14:19:46,197 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:46] "[35m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 500 -
+2024-08-06 14:19:49,073 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:49] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:19:49,073 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:19:49] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:20:21,940 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:20:21] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-08-06 14:20:21,940 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:20:21] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-08-06 14:20:29,519 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:20:29] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:20:29,519 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:20:29] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:41:11,397 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-06 14:41:11,397 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-06 14:41:11,398 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-06 14:41:11,398 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-06 14:41:14,606 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:41:14] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:41:14,606 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:41:14] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:41:19,017 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:41:19] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 400 -
+2024-08-06 14:41:19,017 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:41:19] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 400 -
+2024-08-06 14:56:39,428 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-06 14:56:39,428 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-08-06 14:56:39,428 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-06 14:56:39,428 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2024-08-06 14:56:43,828 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:56:43] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 400 -
+2024-08-06 14:56:43,828 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:56:43] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 400 -
+2024-08-06 14:57:05,249 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:57:05] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-08-06 14:57:05,249 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:57:05] "[31m[1mPOST /filtermanager/auth/login HTTP/1.1[0m" 401 -
+2024-08-06 14:57:43,671 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:57:43] "POST /filtermanager/auth/login HTTP/1.1" 200 -
+2024-08-06 14:57:43,671 - werkzeug - INFO - 127.0.0.1 - - [06/Aug/2024 14:57:43] "POST /filtermanager/auth/login HTTP/1.1" 200 -

@@ -169,7 +169,7 @@ def fuzzysearchrequest(
     except CustomValueError as e:
         return {"error": str(e)}, 400
 
-def keywordhighlightingrequest(data, search_field, search_term, filter_data=None, projection=None, sort_data=None, page=None, items_per_page=None, highlight_tag='<mark>'):
+def keywordhighlightingrequest(data, search_field, search_term, filter_data=None, projection=None, sort_data=None, page=None, items_per_page=None, highlight_tag='<mark>',case_sensitive=False):
     data_manager = get_data_manager(data)
     try:
         results = data_manager.keywordhighlighting(
@@ -180,7 +180,8 @@ def keywordhighlightingrequest(data, search_field, search_term, filter_data=None
             sort_data=sort_data,
             page=page,
             items_per_page=items_per_page,
-            highlight_tag=highlight_tag
+            highlight_tag=highlight_tag,
+            case_sensitive=case_sensitive
         )
         return results
     except CustomValueError as e:

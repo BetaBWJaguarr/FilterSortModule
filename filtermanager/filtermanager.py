@@ -484,7 +484,8 @@ class DataManager:
             sort_data=None,
             page=None,
             items_per_page=None,
-            highlight_tag='<mark>'
+            highlight_tag='<mark>',
+            case_sensitive=False
     ):
         cache_key = self._generate_cache_key(
             search_field, search_term, filter_data, projection, sort_data, page, items_per_page, highlight_tag
@@ -496,7 +497,7 @@ class DataManager:
 
         query = filter_data if filter_data else {}
 
-        regex_flags = re.IGNORECASE
+        regex_flags = re.IGNORECASE if not case_sensitive else 0
 
         search_term = [re.escape(term) for term in search_term] if isinstance(search_term, list) else [re.escape(search_term)]
         regex_pattern = '|'.join(search_term)
@@ -527,10 +528,10 @@ class DataManager:
                 if isinstance(search_field, list):
                     for field in search_field:
                         if field in result and result[field] is not None:
-                            result[field] = self._highlight_keywords(result[field], search_term, highlight_tag)
+                            result[field] = self._highlight_keywords(result[field], search_term, highlight_tag, case_sensitive)
                 else:
                     if search_field in result and result[search_field] is not None:
-                        result[search_field] = self._highlight_keywords(result[search_field], search_term, highlight_tag)
+                        result[search_field] = self._highlight_keywords(result[search_field], search_term, highlight_tag, case_sensitive)
 
             encoded_results = json.loads(JSONEncoder().encode(results))
 
@@ -543,11 +544,19 @@ class DataManager:
             print(f"An error occurred: {e}")
             return []
 
-    def _highlight_keywords(self, text, search_terms, highlight_tag):
+    def _highlight_keywords(self, text, search_terms, highlight_tag, case_sensitive=False):
         if not text:
             return text
+
+        regex_flags = 0 if case_sensitive else re.IGNORECASE
+
         for term in search_terms:
-            text = re.sub(re.escape(term), f'{highlight_tag}\\0{highlight_tag[1:]}', text, flags=re.IGNORECASE)
+            pattern = re.escape(term)
+
+            regex = re.compile(rf'(?<!\w)({pattern})(?!\w)', flags=regex_flags)
+
+            text = regex.sub(f'{highlight_tag}\\1{highlight_tag[1:]}', text)
+
         return text
 
     def customsortingoptions(
@@ -642,10 +651,12 @@ class DataManager:
             sort_data=None,
             page=None,
             items_per_page=None,
-            timeout=5000
+            timeout=5000,
+            geofencing_area=None,
+            coordinates_type='Point'
     ):
         cache_key = self._generate_cache_key(
-            location_field, coordinates, max_distance, min_distance, filter_data, projection, sort_data, page, items_per_page
+            location_field, coordinates, max_distance, min_distance, filter_data, projection, sort_data, page, items_per_page, geofencing_area, coordinates_type
         )
         cached_result = self._get_from_cache(cache_key)
         if cached_result:
@@ -657,7 +668,7 @@ class DataManager:
         geo_query = {
             "$near": {
                 "$geometry": {
-                    "type": "Point",
+                    "type": coordinates_type,
                     "coordinates": coordinates
                 }
             }
@@ -670,13 +681,22 @@ class DataManager:
 
         query[location_field] = geo_query
 
+        if geofencing_area:
+            query[location_field]["$geoWithin"] = {
+                "$geometry": {
+                    "type": "Polygon",
+                    "coordinates": geofencing_area
+                }
+            }
+
         skip, limit = self._calculate_pagination(page, items_per_page)
 
         try:
             cursor = self.collection.find(query, projection).skip(skip).limit(limit).max_time_ms(timeout)
 
             if sort_data:
-                cursor = cursor.sort([(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()])
+                sort = [(k, ASCENDING if v == 1 else DESCENDING) for k, v in sort_data.items()]
+                cursor = cursor.sort(sort)
 
             results = list(cursor)
 
@@ -688,12 +708,7 @@ class DataManager:
                 "total_pages": (total_count + items_per_page - 1) // items_per_page
             }
 
-            output = {
-                "results": encoded_results,
-                "metadata": metadata
-            }
-
-            self._set_to_cache(cache_key, output)
+            self._set_to_cache(cache_key, encoded_results)
             print(f"Cache set for key: {cache_key}")
             print(self.get_cache_statistics())
             return encoded_results

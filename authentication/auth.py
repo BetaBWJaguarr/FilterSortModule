@@ -95,8 +95,7 @@ def register():
         if users_collection.find_one({"email": email}):
             return jsonify({"error": "User already exists"}), 400
 
-        hashed_password = generate_password_hash(password)
-        user = User(username, email, hashed_password, role=role, security_question=security_question, security_answer=security_answer)
+        user = User(username, email, password, role=role, security_question=security_question, security_answer=security_answer)
         users_collection.insert_one(user.to_dict())
 
         token = generate_token({'user_id': user.id}, expiration_minutes=60)
@@ -125,13 +124,8 @@ def login():
         security_question = data.get('security_question')
         security_answer = data.get('security_answer')
 
-        if email in failed_login_attempts:
-            failed_attempt = failed_login_attempts[email]
-            if (
-                    failed_attempt['count'] >= LOGIN_ATTEMPT_LIMIT
-                    and datetime.utcnow() - failed_attempt['last_failed_attempt'] < LOCKOUT_TIME
-            ):
-                return jsonify({"error": "Account locked. Please try again later."}), 403
+        if not email or not password:
+            return jsonify({"error": "Email and password are required."}), 400
 
         user_data = users_collection.find_one({"email": email})
 
@@ -140,40 +134,43 @@ def login():
                 return jsonify({"error": "Email not verified. Please verify your email before logging in."}), 401
 
             if check_password_hash(user_data['password'], password):
-                if security_question and security_answer:
-                    if (
-                            user_data.get('security_question') == security_question and
-                            check_password_hash(user_data['security_answer'], security_answer)
-                    ):
-                        session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
-                        sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
-                        if email in failed_login_attempts:
-                            del failed_login_attempts[email]
+                if user_data.get('role') == 'admin':
+                    session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
+                    sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
+                    if email in failed_login_attempts:
+                        del failed_login_attempts[email]
 
-                        log_admin_activity(
-                            action="User logged in",
-                            details=f"User with email: {email} logged in.",
-                            status="success",
-                            metadata={"email": email, "user_id": user_data['_id']}
-                        )
+                    log_admin_activity(
+                        action="Admin logged in",
+                        details=f"Admin with email: {email} logged in.",
+                        status="success",
+                        metadata={"email": email, "user_id": user_data['_id']}
+                    )
 
-                        return jsonify({"message": "Login successful", "session_id": session_id}), 200
-                    else:
-                        return jsonify({"error": "Invalid security question or answer"}), 401
+                    return jsonify({"message": "Login successful", "session_id": session_id}), 200
 
-                session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
-                sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
-                if email in failed_login_attempts:
-                    del failed_login_attempts[email]
+                if not security_question or not security_answer:
+                    return jsonify({"error": "Security question and answer are required for non-admin users."}), 400
 
-                log_admin_activity(
-                    action="User logged in",
-                    details=f"User with email: {email} logged in.",
-                    status="success",
-                    metadata={"email": email, "user_id": user_data['_id']}
-                )
+                if (
+                        user_data.get('security_question') == security_question and
+                        check_password_hash(user_data['security_answer'], security_answer)
+                ):
+                    session_id = next((k for k, v in sessions.items() if v['user_id'] == user_data['_id']), None) or str(uuid.uuid4())
+                    sessions[session_id] = {'user_id': user_data['_id'], 'last_active': datetime.utcnow()}
+                    if email in failed_login_attempts:
+                        del failed_login_attempts[email]
 
-                return jsonify({"message": "Login successful", "session_id": session_id}), 200
+                    log_admin_activity(
+                        action="User logged in",
+                        details=f"User with email: {email} logged in.",
+                        status="success",
+                        metadata={"email": email, "user_id": user_data['_id']}
+                    )
+
+                    return jsonify({"message": "Login successful", "session_id": session_id}), 200
+                else:
+                    return jsonify({"error": "Invalid security question or answer"}), 401
 
         if email in failed_login_attempts:
             failed_login_attempts[email]['count'] += 1

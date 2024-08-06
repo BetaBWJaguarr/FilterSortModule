@@ -1,3 +1,4 @@
+import re
 from flask import Blueprint, request, jsonify, send_file
 import pandas as pd
 from datetime import datetime
@@ -8,6 +9,10 @@ from authentication.permissionsmanager.permissions import permission_required
 from authentication.shared import users_collection
 
 admin_api = Blueprint('admin_api', __name__)
+
+def validate_email(email):
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(email_regex, email) is not None
 
 def create_report(df, format_filter):
     output = BytesIO()
@@ -76,15 +81,31 @@ def update_user_details(user_id):
         data = request.get_json()
         new_email = data.get('email')
         new_username = data.get('username')
+        new_role = data.get('role')
+        new_security_question = data.get('security_question')
 
-        if not new_email and not new_username:
-            return jsonify({"error": "At least one of email or username must be provided."}), 400
+        if not (new_email or new_username or new_role or new_security_question):
+            return jsonify({"error": "At least one of email, username, role, security question, or security answer must be provided."}), 400
 
         update_fields = {}
+
         if new_email:
+            if not validate_email(new_email):
+                return jsonify({"error": "Invalid email format."}), 400
             update_fields["email"] = new_email
+
         if new_username:
+            if len(new_username) < 3:
+                return jsonify({"error": "Username must be at least 3 characters long."}), 400
             update_fields["username"] = new_username
+
+        if new_role:
+            if new_role not in ['admin', 'user']:
+                return jsonify({"error": "Invalid role. Must be 'admin' or 'user'."}), 400
+            update_fields["role"] = new_role
+
+        if new_security_question:
+            update_fields["security_question"] = new_security_question
 
         result = users_collection.update_one({"_id": user_id}, {"$set": update_fields})
 

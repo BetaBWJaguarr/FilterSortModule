@@ -1,5 +1,5 @@
 import uuid
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 
 class User:
     def __init__(self, username, email, password, role='user',security_question=None, security_answer=None):
@@ -10,7 +10,7 @@ class User:
         self.role = role
         self.is_verified = False
         self.security_question = security_question
-        self.security_answer = generate_password_hash(security_answer)  # Hashing the answer
+        self.security_answer = generate_password_hash(security_answer)
 
     def to_dict(self):
         return {
